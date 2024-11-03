@@ -10,18 +10,26 @@ def main():
     total_reward = 0
     
     while not done:
+        reward = 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
-        
-        # (0 = planter, 1 = purifier, 2 = restaurer)
-        action = random.choice([0, 1, 2])
-        obs, reward, done, info = env.step(action)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+                    env.current_action = 0 
+                elif event.key == pygame.K_u:
+                    env.current_action = 1
+                elif event.key == pygame.K_r:
+                    env.current_action = 2
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+                row, col = env.from_isometric(x, y)
+                if 0 <= row < env.grid_size and 0 <= col < env.grid_size:
+                    obs, reward, done, info = env.step(row, col)
+                    total_reward += reward
         
         env.render()
         
-        total_reward += reward
-
     print(f"Fin de l'épisode avec une récompense totale de : {total_reward}")
     env.close()
 
