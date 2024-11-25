@@ -1,6 +1,6 @@
-import random
-from terra_lab.envs import EcoEnv
 import pygame
+from terra_lab.envs import EcoEnv
+
 
 def main():
     env = EcoEnv()
