@@ -2,6 +2,7 @@ import gym
 from gym import spaces
 import numpy as np
 import pygame
+from terra_lab.utils.enums import MACHINE_TYPE, MAP_STATES
 
 class EcoEnv(gym.Env):
     """
@@ -13,8 +14,8 @@ class EcoEnv(gym.Env):
     def __init__(self):
         super(EcoEnv, self).__init__()
         
-        self.grid_size = 10
-        self.cell_size = 90  
+        self.grid_size = 20
+        self.cell_size = 40
         self.state = np.zeros((self.grid_size, self.grid_size), dtype=np.int32)
         
         self.observation_space = spaces.Box(low=0, high=2, shape=(self.grid_size, self.grid_size), dtype=np.int32)
@@ -22,7 +23,8 @@ class EcoEnv(gym.Env):
         
         pygame.init()
         self.screen = pygame.display.set_mode((self.cell_size * self.grid_size, self.cell_size * self.grid_size))
-        pygame.display.set_caption("EcoEnv")       
+        pygame.display.set_caption("EcoEnv")   
+
         
         self.current_action = 0 
 
@@ -33,6 +35,15 @@ class EcoEnv(gym.Env):
         """
         self.state = np.zeros((self.grid_size, self.grid_size), dtype=np.int32)
         return self.state
+    
+    def checkIfEnergy(self, row, col):
+        for i in range(-4,5):
+            for y in range(-4,5):
+                if 0 <= row-i < self.grid_size and 0 <= col-y < self.grid_size:
+                    if self.state[row-i,col-y] == 2:
+                        return True
+
+        return False
 
     def step(self, row, col):
         """
@@ -41,25 +52,19 @@ class EcoEnv(gym.Env):
         - row, col : Coordonnées de la cellule dans la grille
         - action (0 = planter, 1 = purifier, 2 = restaurer)
         """
-        action = self.current_action  
-        reward = 0
-
-        if action == 0:  
-            if self.state[row, col] == 0:  
-                self.state[row, col] = 1
-                reward = 10
-        elif action == 1:  
-            if self.state[row, col] == 0:  
-                self.state[row, col] = 2
-                reward = 5
-        elif action == 2:  
-            if self.state[row, col] == 1:  
-                reward = 7
-
+        action = self.current_action
         
-        done = np.all(self.state > 0)
 
-        return self.state, reward, done, {}
+        if action == MACHINE_TYPE.WIND_TURBINE:  
+            if self.state[row, col] == MAP_STATES.ROCK.value["value"]:  
+                self.state[row, col] = MAP_STATES.WIND_TURBINE.value["value"]
+        elif action == MACHINE_TYPE.PURIFIER:  
+            if self.checkIfEnergy(row,col):
+                self.state[row, col] = MAP_STATES.PURIFIER.value["value"]
+        elif action == MACHINE_TYPE.IRRIGATOR:  
+            print()
+
+        return self.state
 
     def to_isometric(self, row, col):
         """
@@ -83,18 +88,12 @@ class EcoEnv(gym.Env):
     def render(self, mode="human"):
         """
         Affiche l'état actuel de l'environnement sous forme de grille isométrique avec PyGame.
-        
-        - color (gris = sol stérile, vert = végétation, bleu = eau)
         """
         self.screen.fill((0, 0, 0))
 
         for row in range(self.grid_size):
             for col in range(self.grid_size):
-                color = (200, 200, 200)
-                if self.state[row, col] == 1:
-                    color = (34, 139, 34)
-                elif self.state[row, col] == 2:
-                    color = (0, 191, 255)
+                color = MAP_STATES.UNFERTILE_DIRT.value["color"]
                 iso_x, iso_y = self.to_isometric(row, col)
                 points = [
                     (iso_x, iso_y - self.cell_size // 4),
@@ -102,6 +101,38 @@ class EcoEnv(gym.Env):
                     (iso_x, iso_y + self.cell_size // 4),
                     (iso_x - self.cell_size // 2, iso_y)
                 ]
+                if self.state[row, col] == MAP_STATES.ROCK.value["value"]:
+                    color = MAP_STATES.ROCK.value["color"]
+                elif self.state[row, col] == MAP_STATES.WIND_TURBINE.value["value"]:
+                    color = MAP_STATES.WIND_TURBINE.value["color"]
+                elif self.state[row, col] == MAP_STATES.PURIFIER.value["value"]:
+                    color = MAP_STATES.PURIFIER.value["color"]
+                elif self.state[row, col] == MAP_STATES.FERTILE_DIRT.value["value"]:
+                    color = MAP_STATES.FERTILE_DIRT.value["color"]
+                elif self.state[row, col] == MAP_STATES.IRRIGATOR.value["value"]:
+                    color = MAP_STATES.IRRIGATOR.value["color"]
+                elif self.state[row, col] == MAP_STATES.GRASS.value["value"]:
+                    color = MAP_STATES.GRASS.value["color"]
+
+                mous_x, mous_y = pygame.mouse.get_pos()
+                #print(mous_x,mous_y)
+
+                if iso_x - self.cell_size // 4 < mous_x < iso_x + self.cell_size // 4 and iso_y - self.cell_size // 4 < mous_y < iso_y + self.cell_size // 4:
+
+                    if True :
+                        if self.current_action == MACHINE_TYPE.WIND_TURBINE :
+                            color = MAP_STATES.WIND_TURBINE.value["color"]
+                        if self.current_action == MACHINE_TYPE.PURIFIER :
+                            color = MAP_STATES.PURIFIER.value["color"]
+                        if self.current_action == MACHINE_TYPE.IRRIGATOR :
+                            color = MAP_STATES.IRRIGATOR.value["color"]
+                    else :
+                        points = [
+                            (iso_x, iso_y - self.cell_size // 4 + 2),
+                            (iso_x + self.cell_size // 2 - 3, iso_y),
+                            (iso_x, iso_y + self.cell_size // 4 - 2),
+                            (iso_x - self.cell_size // 2 + 3, iso_y)
+                        ]
                 
                 pygame.draw.polygon(self.screen, color, points)
         

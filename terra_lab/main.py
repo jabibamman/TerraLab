@@ -1,13 +1,22 @@
 import random
 from terra_lab.envs import EcoEnv
 import pygame
+from terra_lab.utils.enums import MACHINE_TYPE
 
 def main():
-    env = EcoEnv()
+    map = EcoEnv()
     
-    obs = env.reset()
+    obs = map.reset()
     done = False
-    total_reward = 0
+
+    #test
+    map.state[2,2] = 1
+    map.state[8,2] = 1
+    map.state[2,8] = 1
+    map.state[10,10] = 1
+
+
+    
     
     while not done:
         reward = 0
@@ -16,22 +25,20 @@ def main():
                 done = True
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
-                    env.current_action = 0 
+                    map.current_action = MACHINE_TYPE.WIND_TURBINE 
                 elif event.key == pygame.K_u:
-                    env.current_action = 1
+                   map.current_action = MACHINE_TYPE.IRRIGATOR 
                 elif event.key == pygame.K_r:
-                    env.current_action = 2
+                    map.current_action = MACHINE_TYPE.PURIFIER 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
-                row, col = env.from_isometric(x, y)
-                if 0 <= row < env.grid_size and 0 <= col < env.grid_size:
-                    obs, reward, done, info = env.step(row, col)
-                    total_reward += reward
+                row, col = map.from_isometric(x, y)
+                if 0 <= row < map.grid_size and 0 <= col < map.grid_size:
+                    state = map.step(row, col)
         
-        env.render()
+        map.render()
         
-    print(f"Fin de l'épisode avec une récompense totale de : {total_reward}")
-    env.close()
+    map.close()
 
 if __name__ == "__main__":
     main()
