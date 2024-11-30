@@ -37,13 +37,28 @@ class EcoEnv(gym.Env):
         return self.state
     
     def checkIfEnergy(self, row, col):
-        for i in range(-4,5):
-            for y in range(-4,5):
+        effect_size = MACHINE_TYPE.WIND_TURBINE.value["range"]
+        for i in range(1-effect_size,effect_size):
+            for y in range(1-effect_size,effect_size):
                 if 0 <= row-i < self.grid_size and 0 <= col-y < self.grid_size:
                     if self.state[row-i,col-y] == 2:
                         return True
 
         return False
+    
+    def createFertileDirt(self, row, col):
+        effect_size = MACHINE_TYPE.PURIFIER.value["range"]
+        for i in range(1-effect_size,effect_size):
+            for y in range(1-effect_size,effect_size):
+                if self.state[row-i,col-y] == MAP_STATES.UNFERTILE_DIRT.value["value"]:
+                    self.state[row-i,col-y] = MAP_STATES.FERTILE_DIRT.value["value"]
+    
+    def createGrass(self, row, col):
+        effect_size = MACHINE_TYPE.IRRIGATOR.value["range"]
+        for i in range(1-effect_size,effect_size):
+            for y in range(1-effect_size,effect_size):
+                if self.state[row-i,col-y] == MAP_STATES.FERTILE_DIRT.value["value"]:
+                    self.state[row-i,col-y] = MAP_STATES.GRASS.value["value"]
 
     def step(self, row, col):
         """
@@ -53,16 +68,18 @@ class EcoEnv(gym.Env):
         - action (0 = planter, 1 = purifier, 2 = restaurer)
         """
         action = self.current_action
-        
 
-        if action == MACHINE_TYPE.WIND_TURBINE:  
+        if action == MACHINE_TYPE.WIND_TURBINE.value["value"]:  
             if self.state[row, col] == MAP_STATES.ROCK.value["value"]:  
                 self.state[row, col] = MAP_STATES.WIND_TURBINE.value["value"]
-        elif action == MACHINE_TYPE.PURIFIER:  
-            if self.checkIfEnergy(row,col):
+        elif action == MACHINE_TYPE.PURIFIER.value["value"]:  
+            if self.checkIfEnergy(row,col) and self.state[row, col] != MAP_STATES.WIND_TURBINE.value["value"] :
                 self.state[row, col] = MAP_STATES.PURIFIER.value["value"]
-        elif action == MACHINE_TYPE.IRRIGATOR:  
-            print()
+                self.createFertileDirt(row, col)
+        elif action == MACHINE_TYPE.IRRIGATOR.value["value"]:  
+            if self.state[row, col] == MAP_STATES.FERTILE_DIRT.value["value"]:  
+                self.state[row, col] = MAP_STATES.IRRIGATOR.value["value"]
+                self.createGrass(row, col)
 
         return self.state
 
@@ -115,16 +132,15 @@ class EcoEnv(gym.Env):
                     color = MAP_STATES.GRASS.value["color"]
 
                 mous_x, mous_y = pygame.mouse.get_pos()
-                #print(mous_x,mous_y)
 
                 if iso_x - self.cell_size // 4 < mous_x < iso_x + self.cell_size // 4 and iso_y - self.cell_size // 4 < mous_y < iso_y + self.cell_size // 4:
 
                     if True :
-                        if self.current_action == MACHINE_TYPE.WIND_TURBINE :
+                        if self.current_action == MACHINE_TYPE.WIND_TURBINE.value["value"] :
                             color = MAP_STATES.WIND_TURBINE.value["color"]
-                        if self.current_action == MACHINE_TYPE.PURIFIER :
+                        if self.current_action == MACHINE_TYPE.PURIFIER.value["value"] :
                             color = MAP_STATES.PURIFIER.value["color"]
-                        if self.current_action == MACHINE_TYPE.IRRIGATOR :
+                        if self.current_action == MACHINE_TYPE.IRRIGATOR.value["value"] :
                             color = MAP_STATES.IRRIGATOR.value["color"]
                     else :
                         points = [

@@ -11,11 +11,11 @@ class MAP_STATES(Enum):
         }
     WIND_TURBINE = { 
             "value" : 2, 
-            "color" : (255, 255, 255)
+            "color" : (255, 255, 255),
         }
     PURIFIER = { 
             "value" : 3, 
-            "color" : (181, 0, 0)
+            "color" : (181, 0, 0),
         }
     FERTILE_DIRT = { 
             "value" : 4, 
@@ -23,7 +23,7 @@ class MAP_STATES(Enum):
         }
     IRRIGATOR = { 
             "value" : 5, 
-            "color" : (0, 181, 115)
+            "color" : (0, 181, 115),
         }
     GRASS = { 
             "value" : 6, 
@@ -33,6 +33,15 @@ class MAP_STATES(Enum):
 
 
 class MACHINE_TYPE(Enum):
-    WIND_TURBINE = "WIND_TURBINE"
-    PURIFIER = "PURIFIER"
-    IRRIGATOR = "IRRIGATOR"
+    WIND_TURBINE = { 
+            "value" : "WIND_TURBINE", 
+            "range" : 5
+        }
+    PURIFIER = { 
+            "value" : "PURIFIER", 
+            "range" : 3
+        }
+    IRRIGATOR ={ 
+            "value" : "IRRIGATOR", 
+            "range" : 4
+        }

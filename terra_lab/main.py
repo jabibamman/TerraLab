@@ -25,11 +25,11 @@ def main():
                 done = True
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
-                    map.current_action = MACHINE_TYPE.WIND_TURBINE 
+                    map.current_action = MACHINE_TYPE.WIND_TURBINE.value["value"]
                 elif event.key == pygame.K_u:
-                   map.current_action = MACHINE_TYPE.IRRIGATOR 
+                   map.current_action = MACHINE_TYPE.IRRIGATOR.value["value"] 
                 elif event.key == pygame.K_r:
-                    map.current_action = MACHINE_TYPE.PURIFIER 
+                    map.current_action = MACHINE_TYPE.PURIFIER.value["value"] 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
                 row, col = map.from_isometric(x, y)
