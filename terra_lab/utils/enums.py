@@ -23,7 +23,7 @@ class MAP_STATES(Enum):
         }
     IRRIGATOR = { 
             "value" : 5, 
-            "color" : (0, 181, 115),
+            "color" : (4, 79, 18),
         }
     GRASS = { 
             "value" : 6, 
