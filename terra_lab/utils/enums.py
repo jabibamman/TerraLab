@@ -11,7 +11,7 @@ class MAP_STATES(Enum):
         }
     WIND_TURBINE = { 
             "value" : 2, 
-            "color" : (255, 255, 255),
+            "color" : (100, 100, 100),
         }
     PURIFIER = { 
             "value" : 3, 

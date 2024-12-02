@@ -14,8 +14,19 @@ class EcoEnv(gym.Env):
         super(EcoEnv, self).__init__()
         
         self.grid_size = 40
-        self.cell_size = 20
+        self.cell_size = 25
         self.state = np.zeros((self.grid_size, self.grid_size), dtype=np.int32)
+
+        self.sprites = {
+            MAP_STATES.ROCK.value["value"]: pygame.image.load("assets/sprites/Rock.png"),
+            MAP_STATES.WIND_TURBINE.value["value"]: pygame.image.load("assets/sprites/Turbine.png"),
+            MAP_STATES.PURIFIER.value["value"]: pygame.image.load("assets/sprites/Toxin_Scrubber.png"),
+            MAP_STATES.IRRIGATOR.value["value"]: pygame.image.load("assets/sprites/Irrigator.png"),
+        }
+
+        for key in self.sprites:
+            self.sprites[key] = pygame.transform.scale(self.sprites[key], (self.cell_size, self.cell_size))
+
 
         self.observation_space = spaces.Box(
             low=0, high=2, shape=(self.grid_size, self.grid_size), dtype=np.int32
@@ -24,7 +35,7 @@ class EcoEnv(gym.Env):
 
         pygame.init()
         self.screen = pygame.display.set_mode(
-            (self.cell_size * self.grid_size, self.cell_size * self.grid_size)
+            (self.cell_size * self.grid_size, self.cell_size * self.grid_size - 250)
         )
         pygame.display.set_caption("EcoEnv")
 
@@ -123,6 +134,16 @@ class EcoEnv(gym.Env):
                 ]
 
                 pygame.draw.polygon(self.screen, color, points)
+                if self.state[row, col] == MAP_STATES.WIND_TURBINE.value["value"] or self.state[row, col] == MAP_STATES.ROCK.value["value"] or self.state[row, col] == MAP_STATES.IRRIGATOR.value["value"] or self.state[row, col] == MAP_STATES.PURIFIER.value["value"]:
+                    
+                    cell_value = self.state[row, col]
+                    iso_x, iso_y = self.to_isometric(row, col)
+                    sprite = self.sprites.get(cell_value, None)
+
+                    if sprite:
+                        sprite_rect = sprite.get_rect(center=(iso_x, iso_y-5))
+                        self.screen.blit(sprite, sprite_rect)
+                    
 
         iso_x, iso_y = self.to_isometric(current_pos[0], current_pos[1])
         pygame.draw.circle(self.screen, (0, 0, 0), [iso_x, iso_y], 3)
