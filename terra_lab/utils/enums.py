@@ -35,13 +35,13 @@ class MAP_STATES(Enum):
 class MACHINE_TYPE(Enum):
     WIND_TURBINE = { 
             "value" : "WIND_TURBINE", 
-            "range" : 5
+            "range" : 6
         }
     PURIFIER = { 
             "value" : "PURIFIER", 
-            "range" : 3
+            "range" : 5
         }
     IRRIGATOR ={ 
             "value" : "IRRIGATOR", 
-            "range" : 4
+            "range" : 7
         }

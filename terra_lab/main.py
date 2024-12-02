@@ -1,67 +1,73 @@
-import random
-from terra_lab.envs import EcoEnv
 import pygame
+from terra_lab.envs import EcoEnv
 from terra_lab.utils.enums import MACHINE_TYPE
 
+
+def initialize_map(map_instance):
+    """Initializes the map with some predefined state."""
+    initial_positions = [(2, 2), (8, 2), (2, 8), (10, 10), (20,20), (30,20), (20,30), (24,7), (7,30)]
+    for x, y in initial_positions:
+        map_instance.state[x, y] = 1
+
+
+def handle_action(event_key, map_instance, x, y):
+    """
+    Handles key presses for performing actions on the map.
+    Returns the updated action type or None if no action is performed.
+    """
+    action_mapping = {
+        pygame.K_p: MACHINE_TYPE.WIND_TURBINE.value["value"],
+        pygame.K_u: MACHINE_TYPE.IRRIGATOR.value["value"],
+        pygame.K_r: MACHINE_TYPE.PURIFIER.value["value"],
+    }
+
+    action = action_mapping.get(event_key)
+    if action:
+        map_instance.current_action = action
+        map_instance.step(x, y)
+
+
+def handle_movement(event_key, x, y, grid_size):
+    """
+    Handles movement key presses to update the current position.
+    Returns the updated x and y coordinates.
+    """
+    if event_key == pygame.K_DOWN:
+        y = (y + 1) % grid_size
+    elif event_key == pygame.K_UP:
+        y = (y - 1) % grid_size
+    elif event_key == pygame.K_RIGHT:
+        x = (x - 1) % grid_size
+    elif event_key == pygame.K_LEFT:
+        x = (x + 1) % grid_size
+    return x, y
+
+
 def main():
-    map = EcoEnv()
-    
-    obs = map.reset()
+    """Main function to run the EcoEnv game."""
+    map_instance = EcoEnv()
+    obs = map_instance.reset()
     done = False
 
-    #test
-    map.state[2,2] = 1
-    map.state[8,2] = 1
-    map.state[2,8] = 1
-    map.state[10,10] = 1
+    initialize_map(map_instance)
 
-    current_x = 0
-    current_y = 0
-    current_pos = [current_x, current_y]
-    
+    current_x, current_y = 0, 0
+
     while not done:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_p:
-                    map.current_action = MACHINE_TYPE.WIND_TURBINE.value["value"]
-                    map.step(current_x, current_y)
-                elif event.key == pygame.K_u:
-                    map.current_action = MACHINE_TYPE.IRRIGATOR.value["value"]
-                    map.step(current_x, current_y)
-                elif event.key == pygame.K_r:
-                    map.current_action = MACHINE_TYPE.PURIFIER.value["value"]
-                    map.step(current_x, current_y)
-                elif event.key == pygame.K_DOWN:
-                    current_y += 1 
-                    if current_y >= map.grid_size:
-                       current_y = 0
-                    current_pos = [current_x, current_y]
-                elif event.key == pygame.K_UP:
-                    current_y -= 1 
-                    if current_y < 0:
-                       current_y = map.grid_size-1
-                    current_pos = [current_x, current_y]
-                elif event.key == pygame.K_RIGHT:
-                    current_x -= 1 
-                    if current_x < 0:
-                       current_x = map.grid_size-1
-                    current_pos = [current_x, current_y]
-                elif event.key == pygame.K_LEFT:
-                    current_x += 1 
-                    if current_x >= map.grid_size:
-                       current_x = 0
-                    current_pos = [current_x, current_y]
-            # elif event.type == pygame.MOUSEBUTTONDOWN:
-            #     x, y = event.pos
-            #     row, col = map.from_isometric(x, y)
-            #     if 0 <= row < map.grid_size and 0 <= col < map.grid_size:
-            #         state = map.step(row, col)
-        
-        map.render(current_pos)
-        
-    map.close()
+                handle_action(event.key, map_instance, current_x, current_y)
+                
+                current_x, current_y = handle_movement(
+                    event.key, current_x, current_y, map_instance.grid_size
+                )
+
+        map_instance.render([current_x, current_y])
+
+    map_instance.close()
+
 
 if __name__ == "__main__":
     main()
