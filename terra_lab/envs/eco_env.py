@@ -14,7 +14,7 @@ class EcoEnv(gym.Env):
         super(EcoEnv, self).__init__()
         
         self.grid_size = 40
-        self.cell_size = 25
+        self.cell_size = 20
         self.state = np.zeros((self.grid_size, self.grid_size), dtype=np.int32)
 
         self.sprites = {
@@ -22,6 +22,9 @@ class EcoEnv(gym.Env):
             MAP_STATES.WIND_TURBINE.value["value"]: pygame.image.load("assets/sprites/Turbine.png"),
             MAP_STATES.PURIFIER.value["value"]: pygame.image.load("assets/sprites/Toxin_Scrubber.png"),
             MAP_STATES.IRRIGATOR.value["value"]: pygame.image.load("assets/sprites/Irrigator.png"),
+            MAP_STATES.UNFERTILE_DIRT.value["value"]: pygame.image.load("assets/sprites/Wasteland.png"),
+            MAP_STATES.FERTILE_DIRT.value["value"]: pygame.image.load("assets/sprites/Soil.png"),
+            MAP_STATES.GRASS.value["value"]: pygame.image.load("assets/sprites/Greenery.png"),
         }
 
         for key in self.sprites:
@@ -35,7 +38,7 @@ class EcoEnv(gym.Env):
 
         pygame.init()
         self.screen = pygame.display.set_mode(
-            (self.cell_size * self.grid_size, self.cell_size * self.grid_size - 250)
+            (self.cell_size * self.grid_size, self.cell_size * self.grid_size - 150)
         )
         pygame.display.set_caption("EcoEnv")
 
@@ -119,30 +122,37 @@ class EcoEnv(gym.Env):
         ]
         for i, text in enumerate(texts):
             text_surface = font.render(text, True, (255, 255, 255))
-            self.screen.blit(text_surface, (10, 500 + i * 50))
+            self.screen.blit(text_surface, (10, 400 + i * 50))
 
         for row in range(self.grid_size):
             for col in range(self.grid_size):
-                color = self.get_cell_color(self.state[row, col])
-                iso_x, iso_y = self.to_isometric(row, col)
-
-                points = [
-                    (iso_x, iso_y - self.cell_size // 4),
-                    (iso_x + self.cell_size // 2, iso_y),
-                    (iso_x, iso_y + self.cell_size // 4),
-                    (iso_x - self.cell_size // 2, iso_y),
-                ]
-
-                pygame.draw.polygon(self.screen, color, points)
-                if self.state[row, col] == MAP_STATES.WIND_TURBINE.value["value"] or self.state[row, col] == MAP_STATES.ROCK.value["value"] or self.state[row, col] == MAP_STATES.IRRIGATOR.value["value"] or self.state[row, col] == MAP_STATES.PURIFIER.value["value"]:
-                    
-                    cell_value = self.state[row, col]
+                if self.state[row, col] == MAP_STATES.WIND_TURBINE.value["value"] or self.state[row, col] == MAP_STATES.IRRIGATOR.value["value"] : 
+                    color = self.get_cell_color(self.state[row, col])
                     iso_x, iso_y = self.to_isometric(row, col)
-                    sprite = self.sprites.get(cell_value, None)
 
-                    if sprite:
+                    points = [
+                        (iso_x, iso_y - self.cell_size // 4),
+                        (iso_x + self.cell_size // 2 +5, iso_y),
+                        (iso_x, iso_y + self.cell_size // 4 +5),
+                        (iso_x - self.cell_size // 2, iso_y),
+                    ]
+
+                    pygame.draw.polygon(self.screen, color, points)
+
+
+                cell_value = self.state[row, col]
+                iso_x, iso_y = self.to_isometric(row, col)
+                sprite = self.sprites.get(cell_value, None)
+
+                if sprite:
+                    if self.state[row, col] == MAP_STATES.UNFERTILE_DIRT.value["value"] or self.state[row, col] == MAP_STATES.FERTILE_DIRT.value["value"] or self.state[row, col] == MAP_STATES.GRASS.value["value"] : 
+                        sprite_rect = sprite.get_rect(center=(iso_x, iso_y+3))
+                    elif self.state[row, col] == MAP_STATES.WIND_TURBINE.value["value"] : 
                         sprite_rect = sprite.get_rect(center=(iso_x, iso_y-5))
-                        self.screen.blit(sprite, sprite_rect)
+                    else :
+                        sprite_rect = sprite.get_rect(center=(iso_x, iso_y))
+                    self.screen.blit(sprite, sprite_rect)  
+                    
                     
 
         iso_x, iso_y = self.to_isometric(current_pos[0], current_pos[1])

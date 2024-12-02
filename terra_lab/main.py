@@ -5,7 +5,7 @@ from terra_lab.utils.enums import MACHINE_TYPE
 
 def initialize_map(map_instance):
     """Initializes the map with some predefined state."""
-    initial_positions = [(2, 2), (8, 2), (2, 8), (10, 10), (20,20), (30,20), (20,30), (24,7), (7,30)]
+    initial_positions = [(2, 2), (8, 2), (2, 8), (10, 10)]
     for x, y in initial_positions:
         map_instance.state[x, y] = 1
 
