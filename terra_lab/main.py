@@ -15,28 +15,51 @@ def main():
     map.state[2,8] = 1
     map.state[10,10] = 1
 
-
-    
+    current_x = 0
+    current_y = 0
+    current_pos = [current_x, current_y]
     
     while not done:
-        reward = 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
                     map.current_action = MACHINE_TYPE.WIND_TURBINE.value["value"]
+                    map.step(current_x, current_y)
                 elif event.key == pygame.K_u:
-                   map.current_action = MACHINE_TYPE.IRRIGATOR.value["value"] 
+                    map.current_action = MACHINE_TYPE.IRRIGATOR.value["value"]
+                    map.step(current_x, current_y)
                 elif event.key == pygame.K_r:
-                    map.current_action = MACHINE_TYPE.PURIFIER.value["value"] 
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                x, y = event.pos
-                row, col = map.from_isometric(x, y)
-                if 0 <= row < map.grid_size and 0 <= col < map.grid_size:
-                    state = map.step(row, col)
+                    map.current_action = MACHINE_TYPE.PURIFIER.value["value"]
+                    map.step(current_x, current_y)
+                elif event.key == pygame.K_DOWN:
+                    current_y += 1 
+                    if current_y >= map.grid_size:
+                       current_y = 0
+                    current_pos = [current_x, current_y]
+                elif event.key == pygame.K_UP:
+                    current_y -= 1 
+                    if current_y < 0:
+                       current_y = map.grid_size-1
+                    current_pos = [current_x, current_y]
+                elif event.key == pygame.K_RIGHT:
+                    current_x -= 1 
+                    if current_x < 0:
+                       current_x = map.grid_size-1
+                    current_pos = [current_x, current_y]
+                elif event.key == pygame.K_LEFT:
+                    current_x += 1 
+                    if current_x >= map.grid_size:
+                       current_x = 0
+                    current_pos = [current_x, current_y]
+            # elif event.type == pygame.MOUSEBUTTONDOWN:
+            #     x, y = event.pos
+            #     row, col = map.from_isometric(x, y)
+            #     if 0 <= row < map.grid_size and 0 <= col < map.grid_size:
+            #         state = map.step(row, col)
         
-        map.render()
+        map.render(current_pos)
         
     map.close()
 

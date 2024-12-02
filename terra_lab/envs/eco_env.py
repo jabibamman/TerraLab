@@ -50,15 +50,17 @@ class EcoEnv(gym.Env):
         effect_size = MACHINE_TYPE.PURIFIER.value["range"]
         for i in range(1-effect_size,effect_size):
             for y in range(1-effect_size,effect_size):
-                if self.state[row-i,col-y] == MAP_STATES.UNFERTILE_DIRT.value["value"]:
-                    self.state[row-i,col-y] = MAP_STATES.FERTILE_DIRT.value["value"]
+                if 0 <= row-i < self.grid_size and 0 <= col-y < self.grid_size:
+                    if self.state[row-i,col-y] == MAP_STATES.UNFERTILE_DIRT.value["value"]:
+                        self.state[row-i,col-y] = MAP_STATES.FERTILE_DIRT.value["value"]
     
     def createGrass(self, row, col):
         effect_size = MACHINE_TYPE.IRRIGATOR.value["range"]
         for i in range(1-effect_size,effect_size):
             for y in range(1-effect_size,effect_size):
-                if self.state[row-i,col-y] == MAP_STATES.FERTILE_DIRT.value["value"]:
-                    self.state[row-i,col-y] = MAP_STATES.GRASS.value["value"]
+                if 0 <= row-i < self.grid_size and 0 <= col-y < self.grid_size:
+                    if self.state[row-i,col-y] == MAP_STATES.FERTILE_DIRT.value["value"]:
+                        self.state[row-i,col-y] = MAP_STATES.GRASS.value["value"]
 
     def step(self, row, col):
         """
@@ -101,12 +103,33 @@ class EcoEnv(gym.Env):
         row = int(grid_y)
         col = int(grid_x)
         return row, col
+    
 
-    def render(self, mode="human"):
+    def render(self, current_pos):
         """
         Affiche l'état actuel de l'environnement sous forme de grille isométrique avec PyGame.
         """
         self.screen.fill((0, 0, 0))
+
+        font = pygame.font.Font(None, 36)
+
+        action_text = f"Machine choisi: {self.current_action}"
+        if self.current_action == 0 :
+            action_text = f"Machine choisi: (aucune)"
+        text_surface = font.render(action_text, True, (255, 255, 255))
+        self.screen.blit(text_surface, (10, 500))
+        text1 = "P = éolienne (ne peut être posé que sur des rochers)"
+        text_surface = font.render(text1, True, (255, 255, 255))
+        self.screen.blit(text_surface, (10, 550))
+        text2 = "R = purificateur (ne peut être posé que proche d'éoliennes)"
+        text_surface = font.render(text2, True, (255, 255, 255))
+        self.screen.blit(text_surface, (10, 600))
+        text3 = "U = irrigateur (ne peut être posé que sur de la terre fertile)"
+        text_surface = font.render(text3, True, (255, 255, 255))
+        self.screen.blit(text_surface, (10, 650))
+        text4 = f"Position actuelle : {current_pos}"
+        text_surface = font.render(text4, True, (255, 255, 255))
+        self.screen.blit(text_surface, (10, 10))
 
         for row in range(self.grid_size):
             for col in range(self.grid_size):
@@ -151,6 +174,10 @@ class EcoEnv(gym.Env):
                         ]
                 
                 pygame.draw.polygon(self.screen, color, points)
+
+                current_iso_x, current_iso_y = self.to_isometric(current_pos[0], current_pos[1])
+
+                pygame.draw.circle(self.screen, (0,0,0), [current_iso_x, current_iso_y], 5)
         
         pygame.display.flip()
 
