@@ -11,7 +11,7 @@ class Agent:
 
     def has_win(self) -> bool:
         """ Renvoie True si le joueur a gagné """
-        return self.env.grass_count > ((self.env.grid_size ** 2) * 0.8)
+        return self.env.count_grass() > ((self.env.grid_size ** 2) * 0.8)
 
     def has_lose(self) -> bool:
         """ Renvoie True si le joueur a perdu """
@@ -49,7 +49,7 @@ class Agent:
 
     def place_irrigator(self, row, col):
         if self.env.state[row, col] == MAP_STATES.FERTILE_DIRT.value.value:
-            last_grass_count = self.env.grass_count
+            last_grass_count = self.env.count_grass()
             self.env.state[row, col] = MAP_STATES.IRRIGATOR.value.value
             self.env.apply_effect(
                 row, col,
@@ -57,6 +57,6 @@ class Agent:
                 lambda cell: cell == MAP_STATES.FERTILE_DIRT.value.value,
                 MAP_STATES.GRASS.value.value
             )
-            self.env.update_grass_count()
-            added_grass = self.env.grass_count - last_grass_count
+            current_grass_count = self.env.count_grass()
+            added_grass = current_grass_count - last_grass_count
             self.gain_leaves(added_grass)

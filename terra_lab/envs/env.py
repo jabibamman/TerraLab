@@ -6,11 +6,10 @@ from terra_lab.utils.enums import MACHINE_TYPE, MAP_STATES
 class Env:
     def __init__(self):
         self.grid_size = 40
-        self.grass_count = 0
         self.state = np.zeros((self.grid_size, self.grid_size), dtype=np.int32)
 
     def reset(self):
-        """Réinitialise l'environnement."""
+        """ Réinitialise l'environnement """
         self.state = np.zeros((self.grid_size, self.grid_size), dtype=np.int32)
         return self.state
 
@@ -26,7 +25,7 @@ class Env:
                         self.state[nx, ny] = new_state
 
     def check_if_energy(self, row, col):
-        """Vérifie si une éolienne est à portée."""
+        """ Vérifie si une éolienne est à portée """
         effect_range = MACHINE_TYPE.WIND_TURBINE.value.range
         for dx in range(1 - effect_range, effect_range):
             for dy in range(1 - effect_range, effect_range):
@@ -36,14 +35,16 @@ class Env:
                         return True
         return False
 
-    def update_grass_count(self):
+    def count_grass(self):
+        """ Compte le nombre d'herbe sur la map et renvoie cette valeur """
         count = 0
         for value in np.nditer(self.state):
             if value == MAP_STATES.GRASS.value.value:
                 count += 1
-        self.grass_count = count
+        return count
 
     def can_place_turbine(self):
+        """ Vérifie si une éolienne peut encore être placé """
         for value in np.nditer(self.state):
             if value == MAP_STATES.ROCK.value.value:
                 return True
