@@ -1,5 +1,6 @@
 import pygame
 from terra_lab.envs import EcoEnv
+from terra_lab.envs.env import Env
 from terra_lab.utils.enums import MACHINE_TYPE
 
 
@@ -16,9 +17,9 @@ def handle_action(event_key, map_instance, x, y):
     Returns the updated action type or None if no action is performed.
     """
     action_mapping = {
-        pygame.K_p: MACHINE_TYPE.WIND_TURBINE.value["value"],
-        pygame.K_u: MACHINE_TYPE.IRRIGATOR.value["value"],
-        pygame.K_r: MACHINE_TYPE.PURIFIER.value["value"],
+        pygame.K_p: MACHINE_TYPE.WIND_TURBINE.value.name,
+        pygame.K_u: MACHINE_TYPE.IRRIGATOR.value.name,
+        pygame.K_r: MACHINE_TYPE.PURIFIER.value.name,
     }
 
     action = action_mapping.get(event_key)
@@ -45,11 +46,13 @@ def handle_movement(event_key, x, y, grid_size):
 
 def main():
     """Main function to run the EcoEnv game."""
-    map_instance = EcoEnv()
-    obs = map_instance.reset()
+    env = Env()
+    map_instance = EcoEnv(env)
+
+    obs = map_instance.agent.env.reset()
     done = False
 
-    initialize_map(map_instance)
+    initialize_map(map_instance.agent.env)
 
     current_x, current_y = 0, 0
 
@@ -61,7 +64,7 @@ def main():
                 handle_action(event.key, map_instance, current_x, current_y)
                 
                 current_x, current_y = handle_movement(
-                    event.key, current_x, current_y, map_instance.grid_size
+                    event.key, current_x, current_y, map_instance.agent.env.grid_size
                 )
 
         map_instance.render([current_x, current_y])
