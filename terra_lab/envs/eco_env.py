@@ -63,16 +63,16 @@ class EcoEnv(gym.Env):
 
         self.current_action = 0
 
-    def step(self, row, col):
+    def step(self):
         """Applique l'action courante à la cellule spécifiée."""
         action = self.current_action
 
         if action == MACHINE_TYPE.WIND_TURBINE.value.name:
-            self.agent.place_wind_turbine(row, col)
+            self.agent.place_wind_turbine()
         elif action == MACHINE_TYPE.PURIFIER.value.name:
-            self.agent.place_purifier(row, col)
+            self.agent.place_purifier()
         elif action == MACHINE_TYPE.IRRIGATOR.value.name:
-            self.agent.place_irrigator(row, col)
+            self.agent.place_irrigator()
 
         if self.agent.has_win():
             # Win screen
@@ -94,7 +94,7 @@ class EcoEnv(gym.Env):
         iso_y = (col + row) * (self.cell_size // 4)
         return iso_x, iso_y
 
-    def render(self, current_pos):
+    def render(self):
         """Affiche l'état actuel de l'environnement."""
 
         self.screen.fill((0, 0, 0))
@@ -145,7 +145,7 @@ class EcoEnv(gym.Env):
                         sprite_rect = sprite.get_rect(center=(iso_x, iso_y))
                     self.screen.blit(sprite, sprite_rect)  
 
-        iso_x, iso_y = self.to_isometric(current_pos[0], current_pos[1])
+        iso_x, iso_y = self.to_isometric(self.agent.pos_x, self.agent.pos_y)
         pygame.draw.circle(self.screen, (0, 0, 0), [iso_x, iso_y], 3)
 
         pygame.display.flip()

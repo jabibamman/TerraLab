@@ -8,9 +8,20 @@ class Agent:
     def __init__(self, env):
         self.leaves = START_LEAVES
         self.env = env
+        self.pos_x = 0
+        self.pos_y = 0
 
     def reset(self):
         self.leaves = START_LEAVES
+
+    def move_up(self):
+        self.pos_y = (self.pos_y - 1) % self.env.grid_size
+    def move_down(self):
+        self.pos_y = (self.pos_y + 1) % self.env.grid_size
+    def move_left(self):
+        self.pos_x = (self.pos_x + 1) % self.env.grid_size
+    def move_right(self):
+        self.pos_x = (self.pos_x - 1) % self.env.grid_size
 
     def has_win(self) -> bool:
         """ Renvoie True si le joueur a gagné """
@@ -44,41 +55,41 @@ class Agent:
         """ Vérifie si l'agent a assez d'argent pour payer le montant donné """
         return self.leaves > amount
 
-    def place_wind_turbine(self, row, col):
+    def place_wind_turbine(self):
         if not self.can_pay_leaves(MACHINE_TYPE.WIND_TURBINE.value.price):
             # Handle not enought leaves
             return
 
-        if self.env.state[row, col] == MAP_STATES.ROCK.value.value:
+        if self.env.state[self.pos_x, self.pos_y] == MAP_STATES.ROCK.value.value:
             self.pay_leaves(MACHINE_TYPE.WIND_TURBINE.value.price)
-            self.env.state[row, col] = MAP_STATES.WIND_TURBINE.value.value
+            self.env.state[self.pos_x, self.pos_y] = MAP_STATES.WIND_TURBINE.value.value
 
-    def place_purifier(self, row, col):
+    def place_purifier(self):
         if not self.can_pay_leaves(MACHINE_TYPE.PURIFIER.value.price):
             # Handle not enought leaves
             return
 
-        if self.env.check_if_energy(row, col) and self.env.state[row, col] != MAP_STATES.WIND_TURBINE.value.value:
+        if self.env.check_if_energy(self.pos_x, self.pos_y) and self.env.state[self.pos_x, self.pos_y] != MAP_STATES.WIND_TURBINE.value.value:
             self.pay_leaves(MACHINE_TYPE.PURIFIER.value.price)
-            self.env.state[row, col] = MAP_STATES.PURIFIER.value.value
+            self.env.state[self.pos_x, self.pos_y] = MAP_STATES.PURIFIER.value.value
             self.env.apply_effect(
-                row, col,
+                self.pos_x, self.pos_y,
                 MACHINE_TYPE.PURIFIER.value.range,
                 lambda cell: cell == MAP_STATES.UNFERTILE_DIRT.value.value,
                 MAP_STATES.FERTILE_DIRT.value.value
             )
 
-    def place_irrigator(self, row, col):
+    def place_irrigator(self):
         if not self.can_pay_leaves(MACHINE_TYPE.IRRIGATOR.value.price):
             # Handle not enought leaves
             return
 
-        if self.env.state[row, col] == MAP_STATES.FERTILE_DIRT.value.value:
+        if self.env.state[self.pos_x, self.pos_y] == MAP_STATES.FERTILE_DIRT.value.value:
             self.pay_leaves(MACHINE_TYPE.IRRIGATOR.value.price)
             last_grass_count = self.env.count_grass()
-            self.env.state[row, col] = MAP_STATES.IRRIGATOR.value.value
+            self.env.state[self.pos_x, self.pos_y] = MAP_STATES.IRRIGATOR.value.value
             self.env.apply_effect(
-                row, col,
+                self.pos_x, self.pos_y,
                 MACHINE_TYPE.IRRIGATOR.value.range,
                 lambda cell: cell == MAP_STATES.FERTILE_DIRT.value.value,
                 MAP_STATES.GRASS.value.value
