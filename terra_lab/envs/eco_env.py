@@ -79,9 +79,14 @@ class EcoEnv(gym.Env):
             pass
         elif self.agent.has_lose():
             # Lose screen
+            self.reset()
             pass
 
         return self.agent.env.state
+
+    def reset(self):
+        self.agent.env.reset()
+        self.agent.reset()
 
     def to_isometric(self, row, col):
         """Convertit des coordonnées de grille en coordonnées isométriques."""

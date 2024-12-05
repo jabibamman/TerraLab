@@ -7,16 +7,21 @@ class Env:
     def __init__(self):
         self.grid_size = 40
         self.state = np.zeros((self.grid_size, self.grid_size), dtype=np.int32)
+        self.initialize_map()
 
     def reset(self):
         """ Réinitialise l'environnement """
         self.state = np.zeros((self.grid_size, self.grid_size), dtype=np.int32)
-        return self.state
+        self.initialize_map()
+
+    def initialize_map(self):
+        """Initializes the map with some predefined state."""
+        initial_positions = [(2, 2), (8, 2), (2, 8), (10, 10)]
+        for x, y in initial_positions:
+            self.state[x, y] = 1
 
     def apply_effect(self, row, col, effect_range, condition, new_state):
-        """
-        Applique un effet sur les cellules dans une plage définie.
-        """
+        """ Applique un effet sur les cellules dans une plage définie """
         for dx in range(1 - effect_range, effect_range):
             for dy in range(1 - effect_range, effect_range):
                 nx, ny = row - dx, col - dy

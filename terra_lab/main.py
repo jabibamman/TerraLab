@@ -4,14 +4,6 @@ from terra_lab.envs.env import Env
 from terra_lab.utils.enums import MACHINE_TYPE
 
 
-def initialize_map(map_instance):
-    """Initializes the map with some predefined state."""
-    initial_positions = [(2, 2), (8, 2), (2, 8), (10, 10)]
-    for x, y in initial_positions:
-        map_instance.state[x, y] = 1
-
-
-
 def handle_action(event_key, map_instance, x, y):
     """
     Handles key presses for performing actions on the map.
@@ -52,8 +44,6 @@ def main():
 
     obs = map_instance.agent.env.reset()
     done = False
-
-    initialize_map(map_instance.agent.env)
 
     current_x, current_y = 0, 0
 

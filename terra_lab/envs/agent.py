@@ -1,13 +1,16 @@
 from terra_lab.utils.enums import MAP_STATES, MACHINE_TYPE
 
-START_LEAVES = 300
-LEAVES_PER_GREEN_SQUARE = 5
+START_LEAVES = 250
+LEAVES_PER_GREEN_SQUARE = 2
 
 
 class Agent:
     def __init__(self, env):
         self.leaves = START_LEAVES
         self.env = env
+
+    def reset(self):
+        self.leaves = START_LEAVES
 
     def has_win(self) -> bool:
         """ Renvoie True si le joueur a gagné """
