@@ -18,6 +18,7 @@ class EcoEnv(gym.Env):
         self.agent = Agent(env)
 
         self.cell_size = 20
+        self.grass_animation_count = 0
 
         self.sprites = {
             MAP_STATES.ROCK.value.value: pygame.image.load("assets/sprites/Rock.png"),
@@ -25,12 +26,29 @@ class EcoEnv(gym.Env):
             MAP_STATES.PURIFIER.value.value: pygame.image.load("assets/sprites/Toxin_Scrubber.png"),
             MAP_STATES.IRRIGATOR.value.value: pygame.image.load("assets/sprites/Irrigator.png"),
             MAP_STATES.UNFERTILE_DIRT.value.value: pygame.image.load("assets/sprites/Wasteland.png"),
-            MAP_STATES.FERTILE_DIRT.value.value: pygame.image.load("assets/sprites/Soil.png"),
-            MAP_STATES.GRASS.value.value: pygame.image.load("assets/sprites/Greenery.png"),
+            MAP_STATES.FERTILE_DIRT.value.value: pygame.image.load("assets/sprites/dirt1.png"),
+            MAP_STATES.GRASS.name: pygame.image.load("assets/sprites/grass8.png"),
+        }
+
+        self.grass_sprites = {
+            1: pygame.image.load("assets/sprites/grass1.png"),
+            2: pygame.image.load("assets/sprites/grass2.png"),
+            3: pygame.image.load("assets/sprites/grass3.png"),
+            4: pygame.image.load("assets/sprites/grass4.png"),
+            5: pygame.image.load("assets/sprites/grass5.png"),
+            6: pygame.image.load("assets/sprites/grass6.png"),
+            7: pygame.image.load("assets/sprites/grass7.png"),
+            8: pygame.image.load("assets/sprites/grass8.png"),
+            9: pygame.image.load("assets/sprites/grass9.png"),
+            10: pygame.image.load("assets/sprites/grass10.png"),
         }
 
         for key in self.sprites:
             self.sprites[key] = pygame.transform.scale(self.sprites[key], (self.cell_size, self.cell_size))
+
+        for key in self.grass_sprites:
+            self.grass_sprites[key] = pygame.transform.scale(self.grass_sprites[key], (self.cell_size, self.cell_size))
+
 
         self.observation_space = spaces.Box(
             low=0, high=2, shape=(self.agent.env.grid_size, self.agent.env.grid_size), dtype=np.int32
@@ -73,6 +91,7 @@ class EcoEnv(gym.Env):
 
     def render(self, current_pos):
         """Affiche l'état actuel de l'environnement."""
+
         self.screen.fill((0, 0, 0))
         font = pygame.font.Font(None, 36)
 
@@ -103,7 +122,14 @@ class EcoEnv(gym.Env):
 
                 cell_value = self.agent.env.state[row, col]
                 iso_x, iso_y = self.to_isometric(row, col)
-                sprite = self.sprites.get(cell_value, None)
+                if cell_value != MAP_STATES.GRASS.value.value :
+                    sprite = self.sprites.get(cell_value, None)
+                else:
+                    if self.grass_animation_count // 10 == col%20 or self.grass_animation_count // 10 == col%20 + 2 or self.grass_animation_count // 10 == col%20 + 3 :
+                        sprite = self.grass_sprites.get(3, None)
+                    else :
+                        sprite = self.grass_sprites.get(1, None)
+
 
                 if sprite:
                     if self.agent.env.state[row, col] == MAP_STATES.UNFERTILE_DIRT.value.value or self.agent.env.state[row, col] == MAP_STATES.FERTILE_DIRT.value.value or self.agent.env.state[row, col] == MAP_STATES.GRASS.value.value :

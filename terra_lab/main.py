@@ -11,6 +11,7 @@ def initialize_map(map_instance):
         map_instance.state[x, y] = 1
 
 
+
 def handle_action(event_key, map_instance, x, y):
     """
     Handles key presses for performing actions on the map.
@@ -56,7 +57,15 @@ def main():
 
     current_x, current_y = 0, 0
 
+    pygame.key.set_repeat(200, 50)
+
     while not done:
+        
+        map_instance.grass_animation_count += 1
+        if map_instance.grass_animation_count > 210:
+            map_instance.grass_animation_count = 0
+        
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
