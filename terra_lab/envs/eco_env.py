@@ -56,6 +56,13 @@ class EcoEnv(gym.Env):
         elif action == MACHINE_TYPE.IRRIGATOR.value.name:
             self.agent.place_irrigator(row, col)
 
+        if self.agent.has_win():
+            # Win screen
+            pass
+        elif self.agent.has_lose():
+            # Lose screen
+            pass
+
         return self.agent.env.state
 
     def to_isometric(self, row, col):
@@ -70,11 +77,10 @@ class EcoEnv(gym.Env):
         font = pygame.font.Font(None, 36)
 
         texts = [
-            f"Position actuelle: {current_pos}",
-            f"Machine choisie: {self.current_action}",
-            "P = éolienne (se place sur des rochers)",
-            "R = purificateur (proche d'éoliennes)",
-            "U = irrigateur (sur de la terre fertile)",
+            f"Feuilles (argent): {self.agent.leaves}",
+            f"P = éolienne (se place sur des rochers) prix: {MACHINE_TYPE.WIND_TURBINE.value.price}",
+            f"R = purificateur (proche d'éoliennes) prix: {MACHINE_TYPE.PURIFIER.value.price}",
+            f"U = irrigateur (sur de la terre fertile) prix: {MACHINE_TYPE.IRRIGATOR.value.price}",
         ]
         for i, text in enumerate(texts):
             text_surface = font.render(text, True, (255, 255, 255))
@@ -95,7 +101,6 @@ class EcoEnv(gym.Env):
 
                     pygame.draw.polygon(self.screen, color, points)
 
-
                 cell_value = self.agent.env.state[row, col]
                 iso_x, iso_y = self.to_isometric(row, col)
                 sprite = self.sprites.get(cell_value, None)
@@ -105,7 +110,7 @@ class EcoEnv(gym.Env):
                         sprite_rect = sprite.get_rect(center=(iso_x, iso_y+3))
                     elif self.agent.env.state[row, col] == MAP_STATES.WIND_TURBINE.value.value :
                         sprite_rect = sprite.get_rect(center=(iso_x, iso_y-5))
-                    else :
+                    else:
                         sprite_rect = sprite.get_rect(center=(iso_x, iso_y))
                     self.screen.blit(sprite, sprite_rect)  
 

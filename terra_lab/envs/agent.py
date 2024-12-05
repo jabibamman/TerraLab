@@ -1,12 +1,12 @@
 from terra_lab.utils.enums import MAP_STATES, MACHINE_TYPE
 
 START_LEAVES = 300
-LEAVES_PER_GREEN_SQUARE = 10
+LEAVES_PER_GREEN_SQUARE = 5
 
 
 class Agent:
     def __init__(self, env):
-        self.__leaves = START_LEAVES
+        self.leaves = START_LEAVES
         self.env = env
 
     def has_win(self) -> bool:
@@ -15,25 +15,31 @@ class Agent:
 
     def has_lose(self) -> bool:
         """ Renvoie True si le joueur a perdu """
-        return self.__leaves < 75
+        if self.env.can_place_turbine() and self.can_pay_leaves(MACHINE_TYPE.WIND_TURBINE.value.price):
+            return False
+        elif self.can_pay_leaves(MACHINE_TYPE.PURIFIER.value.price):
+            return False
+        elif self.can_pay_leaves(MACHINE_TYPE.IRRIGATOR.value.price):
+            return False
+        return True
 
     def gain_leaves(self, nb_green_square: int) -> None:
         """ Gagne des feuilles pour chaque terrain vert obtenu """
-        self.__leaves += nb_green_square * LEAVES_PER_GREEN_SQUARE
+        self.leaves += nb_green_square * LEAVES_PER_GREEN_SQUARE
 
     def pay_leaves(self, amount: int) -> bool:
         """
         Paye des feuilles pour acheter un batiment.
         Renvoie True si le joueur avait assez pour payer
         """
-        if self.__leaves < amount:
+        if self.leaves < amount:
             return False
-        self.__leaves -= amount
+        self.leaves -= amount
         return True
 
     def can_pay_leaves(self, amount: int) -> bool:
         """ Vérifie si l'agent a assez d'argent pour payer le montant donné """
-        return self.__leaves > amount
+        return self.leaves > amount
 
     def place_wind_turbine(self, row, col):
         if not self.can_pay_leaves(MACHINE_TYPE.WIND_TURBINE.value.price):
