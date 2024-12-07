@@ -63,9 +63,9 @@ class EcoEnv(gym.Env):
 
         self.current_action = 0
 
-    def step(self):
+    def step(self, action):
         """Applique l'action courante à la cellule spécifiée."""
-        action = self.current_action
+        self.current_action = action
 
         if action == MACHINE_TYPE.WIND_TURBINE.value.name:
             self.agent.place_wind_turbine()

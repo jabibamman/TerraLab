@@ -17,8 +17,7 @@ def handle_action(event_key, map_instance):
     """
     action = ACTION_MAPPING.get(event_key)
     if action:
-        map_instance.current_action = action
-        map_instance.step()
+        map_instance.step(action)
 
 
 def handle_movement(event_key, map_instance):
