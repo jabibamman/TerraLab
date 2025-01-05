@@ -28,6 +28,7 @@ class EcoEnv(gym.Env):
             MAP_STATES.UNFERTILE_DIRT.value.value: pygame.image.load("assets/sprites/Wasteland.png"),
             MAP_STATES.FERTILE_DIRT.value.value: pygame.image.load("assets/sprites/dirt1.png"),
             MAP_STATES.GRASS.name: pygame.image.load("assets/sprites/grass8.png"),
+           20: pygame.image.load("assets/sprites/hand.png"),
         }
 
         self.grass_sprites = {
@@ -63,9 +64,9 @@ class EcoEnv(gym.Env):
 
         self.current_action = 0
 
-    def step(self):
+    def step(self, action):
         """Applique l'action courante à la cellule spécifiée."""
-        action = self.current_action
+        self.current_action = action
 
         if action == MACHINE_TYPE.WIND_TURBINE.value.name:
             self.agent.place_wind_turbine()
@@ -146,7 +147,11 @@ class EcoEnv(gym.Env):
                     self.screen.blit(sprite, sprite_rect)  
 
         iso_x, iso_y = self.to_isometric(self.agent.pos_x, self.agent.pos_y)
-        pygame.draw.circle(self.screen, (0, 0, 0), [iso_x, iso_y], 3)
+        pygame.draw.circle(self.screen, (0, 0, 0), [iso_x, iso_y], 2)
+        sprite = self.sprites.get(20, None)
+        sprite_rect = sprite.get_rect(center=(iso_x+2, iso_y+10))
+        self.screen.blit(sprite, sprite_rect)  
+        
 
         pygame.display.flip()
 
