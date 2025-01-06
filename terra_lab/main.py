@@ -2,6 +2,7 @@ import pygame
 from terra_lab.envs import EcoEnv
 from terra_lab.envs.env import Env
 from terra_lab.utils.enums import MACHINE_TYPE
+from terra_lab.q_learning_agent import QLearningAgent
 
 
 ACTION_MAPPING = {
@@ -41,22 +42,36 @@ def main():
     map_instance = EcoEnv(env)
 
     pygame.key.set_repeat(200, 50)
+    #mode = input("Enter mode (train/play): ")
+    mode = "train"
 
-    done = False
-    while not done:
-        map_instance.grass_animation_count += 1
-        if map_instance.grass_animation_count > 210:
-            map_instance.grass_animation_count = 0
+    if mode == "train":
+        q_agent = QLearningAgent(env)
+        q_agent.train(episodes=500)
+    elif mode == "play":
+        #q_agent.play()
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                done = True
-            elif event.type == pygame.KEYDOWN:
-                handle_action(event.key, map_instance)
-                handle_movement(event.key, map_instance)
+        done = False
+        
+        while not done:
+            map_instance.grass_animation_count += 1
+            if map_instance.grass_animation_count > 210:
+                map_instance.grass_animation_count = 0
 
-        map_instance.render()
-    map_instance.close()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    done = True
+                elif event.type == pygame.KEYDOWN:
+                    handle_action(event.key, map_instance)
+                    handle_movement(event.key, map_instance)
+
+            map_instance.render()
+        map_instance.close()
+
+        
+    else:
+        print("Invalid mode. Exiting.")
+
 
 
 if __name__ == "__main__":

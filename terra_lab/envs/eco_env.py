@@ -111,6 +111,7 @@ class EcoEnv(gym.Env):
             text_surface = font.render(text, True, (255, 255, 255))
             self.screen.blit(text_surface, (10, 400 + i * 50))
 
+
         for row in range(self.agent.env.grid_size):
             for col in range(self.agent.env.grid_size):
                 if self.agent.env.state[row, col] == MAP_STATES.WIND_TURBINE.value.value or self.agent.env.state[row, col] == MAP_STATES.IRRIGATOR.value.value :
@@ -145,6 +146,7 @@ class EcoEnv(gym.Env):
                     else:
                         sprite_rect = sprite.get_rect(center=(iso_x, iso_y))
                     self.screen.blit(sprite, sprite_rect)  
+
 
         iso_x, iso_y = self.to_isometric(self.agent.pos_x, self.agent.pos_y)
         pygame.draw.circle(self.screen, (0, 0, 0), [iso_x, iso_y], 2)
