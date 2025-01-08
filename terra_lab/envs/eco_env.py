@@ -76,10 +76,8 @@ class EcoEnv(gym.Env):
             self.agent.place_irrigator()
 
         if self.agent.has_win():
-            # Win screen
             pass
         elif self.agent.has_lose():
-            # Lose screen
             self.reset()
             pass
 

@@ -50,8 +50,6 @@ class QLearningAgent:
         self.q_table[x, y, action] += self.learning_rate * td_error
 
     def train(self, episodes=1000, q_table_file="q_table.npy"):
-        """Entraîne l'agent sur un certain nombre d'épisodes."""
-        
         for episode in range(episodes):
             self.agent.reset()
             self.map_instance.reset()
@@ -60,25 +58,24 @@ class QLearningAgent:
             done = False            
 
             while not done:
-
-                with open("output.txt", "a") as file:
-                    print(f"Episode {episode}, Exploration Rate: {self.exploration_rate:.2f}, State: {state}, Done: {done}, Reward: {self.reward}", file=file)
-
                 action_idx = self.choose_action(state)
                 action = self.actions[action_idx]
-                if action == "move_right" : 
+
+                self.agent.last_action = action
+
+                if action == "move_right":
                     self.agent.move_right()
-                elif action == "move_left" :
+                elif action == "move_left":
                     self.agent.move_left()
-                elif action == "move_up" :
+                elif action == "move_up":
                     self.agent.move_up()
-                elif action == "move_down" :
+                elif action == "move_down":
                     self.agent.move_down()
-                elif action == "place_wind_turbine" :
+                elif action == "place_wind_turbine":
                     self.agent.place_wind_turbine()
-                elif action == "place_purifier" :
+                elif action == "place_purifier":
                     self.agent.place_purifier()
-                elif action == "place_irrigator" :
+                elif action == "place_irrigator":
                     self.agent.place_irrigator()
                 else:
                     print("Erreur : action inconnue")
@@ -89,36 +86,51 @@ class QLearningAgent:
 
                 state = next_state
 
-
                 self.map_instance.render()
-
                 done = self.check_done()
 
             self.exploration_rate = max(self.exploration_rate * self.exploration_decay, 0.01)
-
             self.save_q_table(q_table_file)
-  
+
 
     def check_done(self):
         """Condition pour signaler la fin d'un épisode (personnalisable)."""
-        # Exemple de condition : tous les états fertiles sont remplis
         return self.agent.has_win() or self.agent.has_lose()
 
 
     def compute_reward(self, state):
         """Calcule la récompense pour l'état donné."""
         x, y = state
-        if self.env.state[x, y] == MAP_STATES.FERTILE_DIRT.value.value:
+
+        if self.agent.last_action == "place_wind_turbine":
+            if self.env.state[x, y] != MAP_STATES.ROCK.value.value:
+                return -10
+            else:
+                return 5
+
+        elif self.agent.last_action == "place_irrigator":
+            if self.env.state[x, y] != MAP_STATES.FERTILE_DIRT.value.value:
+                return -10
+            else:
+                return 5
+
+        elif self.agent.last_action == "place_purifier":
+            if self.env.state[x, y] != MAP_STATES.UNFERTILE_DIRT.value.value:
+                return -10
+            else:
+                return 5
+
+        if self.env.state[x, y] == MAP_STATES.GRASS.value.value:
+            return 10
+        elif self.env.state[x, y] == MAP_STATES.FERTILE_DIRT.value.value:
             return 1
-        elif self.env.state[x, y] == MAP_STATES.WIND_TURBINE.value.value:
-            return 5
-        elif self.agent.has_win():
+        elif self.env.state[x, y] == MAP_STATES.UNFERTILE_DIRT.value.value:
+            return -1
+        
+        if self.agent.has_win():
             return 1000
         elif self.agent.has_lose():
             return -500
-        elif self.env.state[x, y] == MAP_STATES.GRASS.value.value:
-            return 10
-        elif self.env.state[x, y] == MAP_STATES.UNFERTILE_DIRT.value.value:
-            return -1
-            
+
         return -1
+
