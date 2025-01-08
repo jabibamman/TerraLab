@@ -4,6 +4,7 @@ from terra_lab.envs.agent import Agent
 from terra_lab.envs.eco_env import EcoEnv
 from terra_lab.utils.enums import MACHINE_TYPE
 from terra_lab.utils.enums import MAP_STATES
+import matplotlib.pyplot as plt
 
 class QLearningAgent:
     def __init__(self, env, learning_rate=0.1, discount_factor=0.9, exploration_rate=1.0, exploration_decay=0.995):
@@ -50,10 +51,20 @@ class QLearningAgent:
         self.q_table[x, y, action] += self.learning_rate * td_error
 
     def train(self, episodes=1000, q_table_file="q_table.npy"):
+<<<<<<< Updated upstream
+=======
+        """Entraîne l'agent sur un certain nombre d'épisodes."""
+        #if self.q_table.any():
+            # Si une Q-table existe déjà, réduire l'exploration initiale
+         #   self.exploration_rate = 0.1
+        cumulative_rewards = []
+
+>>>>>>> Stashed changes
         for episode in range(episodes):
             self.agent.reset()
             self.map_instance.reset()
             self.reward = 0
+            total_reward = 0
             state = (self.agent.pos_x, self.agent.pos_y)
             done = False            
 
@@ -82,21 +93,51 @@ class QLearningAgent:
 
                 next_state = (self.agent.pos_x, self.agent.pos_y)
                 self.reward = self.reward + self.compute_reward(next_state)
+                total_reward += self.reward  # Cumul des récompenses pour cet épisode
                 self.update_q_table(state, action_idx, self.reward, next_state)
 
                 state = next_state
 
+<<<<<<< Updated upstream
                 self.map_instance.render()
+=======
+
+                #self.map_instance.render()
+
+>>>>>>> Stashed changes
                 done = self.check_done()
 
+            with open("output.txt", "a") as file:
+                print(f"Episode {episode}, Exploration Rate: {self.exploration_rate:.2f}, Win :{self.agent.has_win()}, Lose :{self.agent.has_lose()} , Reward: {self.reward}", file=file)
+
+            cumulative_rewards.append(total_reward)
             self.exploration_rate = max(self.exploration_rate * self.exploration_decay, 0.01)
+<<<<<<< Updated upstream
             self.save_q_table(q_table_file)
 
+=======
+
+            if episode % 50 == 0:
+                self.save_q_table(q_table_file)
+                print(f"Q-table sauvegardée à l'épisode {episode}")  
+            
+            self.plot_learning_curve(cumulative_rewards)
+>>>>>>> Stashed changes
 
     def check_done(self):
         """Condition pour signaler la fin d'un épisode (personnalisable)."""
         return self.agent.has_win() or self.agent.has_lose()
 
+    def plot_learning_curve(self, rewards, filename="learning_curve.png"):
+        """Trace la courbe d'apprentissage et la sauvegarde en tant qu'image, sans l'afficher."""
+        plt.figure(figsize=(10, 6))
+        plt.plot(rewards, label="Récompenses cumulées par épisode")
+        plt.xlabel("Épisodes")
+        plt.ylabel("Récompenses cumulées")
+        plt.title("Courbe d'apprentissage de l'agent Q-Learning")
+        plt.legend()
+        plt.grid(True)
+        plt.savefig(filename) 
 
     def compute_reward(self, state):
         """Calcule la récompense pour l'état donné."""
