@@ -28,6 +28,7 @@ class QLearningAgent:
 
     def save_q_table(self, filename="q_table.npy"):
         """Sauvegarde la Q-table dans un fichier."""
+        print("Sauvegarde de la Q-table dans ", filename)
         np.save(filename, self.q_table)
 
     def load_q_table(self, filename="q_table.npy"):
@@ -51,7 +52,11 @@ class QLearningAgent:
 
     def train(self, episodes=1000, q_table_file="q_table.npy"):
         """Entraîne l'agent sur un certain nombre d'épisodes."""
-        
+        #if self.q_table.any():
+            # Si une Q-table existe déjà, réduire l'exploration initiale
+         #   self.exploration_rate = 0.1
+        cumulative_rewards = []
+
         for episode in range(episodes):
             self.agent.reset()
             self.map_instance.reset()
@@ -85,25 +90,43 @@ class QLearningAgent:
 
                 next_state = (self.agent.pos_x, self.agent.pos_y)
                 self.reward = self.reward + self.compute_reward(next_state)
+                total_reward += self.reward
                 self.update_q_table(state, action_idx, self.reward, next_state)
 
                 state = next_state
 
-
-                self.map_instance.render()
-
+                #self.map_instance.render()
                 done = self.check_done()
 
+            with open("results/output.txt", "a") as file:
+                print(f"Episode {episode}, Exploration Rate: {self.exploration_rate:.2f}, Win :{self.agent.has_win()}, Lose :{self.agent.has_lose()} , Reward: {self.reward}", file=file)
+
+            cumulative_rewards.append(self.reward)
             self.exploration_rate = max(self.exploration_rate * self.exploration_decay, 0.01)
 
-            self.save_q_table(q_table_file)
-  
+            if episode % 1000 == 0:
+                self.save_q_table(q_table_file)
+                print(f"Q-table sauvegardée à l'épisode {episode}")  
+        
+            if episode % 100 == 0: 
+                self.plot_learning_curve(cumulative_rewards)
 
     def check_done(self):
         """Condition pour signaler la fin d'un épisode (personnalisable)."""
-        # Exemple de condition : tous les états fertiles sont remplis
+        if self.agent.has_win() : 
+            print("HasWin : ",self.agent.has_win())
         return self.agent.has_win() or self.agent.has_lose()
 
+    def plot_learning_curve(self, rewards, filename="learning_curve.png"):
+        """Trace la courbe d'apprentissage et la sauvegarde en tant qu'image, sans l'afficher."""
+        plt.figure(figsize=(10, 6))
+        plt.plot(rewards, label="Récompenses cumulées par épisode")
+        plt.xlabel("Épisodes")
+        plt.ylabel("Récompenses cumulées")
+        plt.title("Courbe d'apprentissage de l'agent Q-Learning")
+        plt.legend()
+        plt.grid(True)
+        plt.savefig("results/" + filename) 
 
     def compute_reward(self, state):
         """Calcule la récompense pour l'état donné."""

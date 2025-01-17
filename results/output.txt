@@ -1,0 +1,14 @@
+Episode 0, Exploration Rate: 1.00, Win :False, Lose :True , Reward: -4453
+Episode 1, Exploration Rate: 0.99, Win :False, Lose :True , Reward: -5480
+Episode 2, Exploration Rate: 0.99, Win :False, Lose :True , Reward: -1243
+Episode 3, Exploration Rate: 0.99, Win :False, Lose :True , Reward: -2849
+Episode 4, Exploration Rate: 0.98, Win :False, Lose :True , Reward: -1268
+Episode 5, Exploration Rate: 0.98, Win :False, Lose :True , Reward: -3171
+Episode 6, Exploration Rate: 0.97, Win :False, Lose :True , Reward: -3090
+Episode 7, Exploration Rate: 0.97, Win :False, Lose :True , Reward: -6339
+Episode 8, Exploration Rate: 0.96, Win :False, Lose :True , Reward: -984
+Episode 9, Exploration Rate: 0.96, Win :False, Lose :True , Reward: -3141
+Episode 10, Exploration Rate: 0.95, Win :False, Lose :True , Reward: -5883
+Episode 11, Exploration Rate: 0.95, Win :False, Lose :True , Reward: -1666
+Episode 12, Exploration Rate: 0.94, Win :False, Lose :True , Reward: -2866
+Episode 13, Exploration Rate: 0.94, Win :False, Lose :True , Reward: -454
