@@ -47,7 +47,7 @@ def main():
 
     if mode == "train":
         q_agent = QLearningAgent(env)
-        q_agent.train(episodes=500)
+        q_agent.train(episodes=5000)
     elif mode == "play":
         #q_agent.play()
 
