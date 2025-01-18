@@ -135,26 +135,26 @@ class QLearningAgent:
 
         if self.agent.last_action == "place_wind_turbine":
             if self.env.state[x, y] != MAP_STATES.ROCK.value.value:
-                return -10
+                return -1000
             else:
-                return 5
+                return 100
 
         elif self.agent.last_action == "place_irrigator":
             if self.env.state[x, y] != MAP_STATES.FERTILE_DIRT.value.value:
-                return -10
+                return -1000
             else:
-                return 5
+                return 50
 
         elif self.agent.last_action == "place_purifier":
             if self.env.state[x, y] != MAP_STATES.UNFERTILE_DIRT.value.value:
-                return -10
+                return -1000
             else:
-                return 5
+                return 50
 
         if self.env.state[x, y] == MAP_STATES.GRASS.value.value:
-            return 10
+            return 100
         elif self.env.state[x, y] == MAP_STATES.FERTILE_DIRT.value.value:
-            return 1
+            return 10
         elif self.env.state[x, y] == MAP_STATES.UNFERTILE_DIRT.value.value:
             return -1
         
