@@ -5,7 +5,7 @@ from terra_lab.utils.enums import MACHINE_TYPE, MAP_STATES
 
 class Env:
     def __init__(self):
-        self.grid_size = 40
+        self.grid_size = 5
         self.state = np.zeros((self.grid_size, self.grid_size), dtype=np.int32)
         self.initialize_map()
 
@@ -58,7 +58,7 @@ class Env:
     def initialize_map(self):
         """Initializes the map with some predefined state."""
         #initial_positions = self.randomize_initial_rock_positions()
-        initial_positions = [(10, 10), (10, 20), (20, 10), (20, 20), (30, 30), (30, 10), (10, 30), (30, 20), (20, 30), (10, 0), (20, 0), (30, 0), (0, 10), (0, 20), (0, 30)]
+        initial_positions = [(1, 1), (1, 3), (3, 1), (3, 3)]
 
         for x, y in initial_positions:
             self.state[x, y] = 1

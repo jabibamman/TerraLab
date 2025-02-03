@@ -58,10 +58,9 @@ class EcoEnv(gym.Env):
 
         pygame.init()
         self.screen = pygame.display.set_mode(
-            (self.cell_size * self.agent.env.grid_size, self.cell_size * self.agent.env.grid_size - 150)
+            (self.cell_size * self.agent.env.grid_size, max(self.cell_size * self.agent.env.grid_size - 150, 150))
         )
         pygame.display.set_caption("EcoEnv")
-
         self.current_action = 0
 
     def step(self, action):

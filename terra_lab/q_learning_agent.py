@@ -5,6 +5,7 @@ from terra_lab.envs.eco_env import EcoEnv
 from terra_lab.utils.enums import MACHINE_TYPE
 from terra_lab.utils.enums import MAP_STATES
 import matplotlib.pyplot as plt
+from torch.utils.tensorboard import SummaryWriter 
 
 class QLearningAgent:
     def __init__(self, env, learning_rate=0.1, discount_factor=0.9, exploration_rate=1.0, exploration_decay=0.995):
@@ -18,6 +19,7 @@ class QLearningAgent:
         self.reward = 0
         self.q_table = self.load_q_table()
         self.actions = ["place_wind_turbine", "place_purifier", "place_irrigator", "move_up", "move_down", "move_left", "move_right"]
+        self.writer = SummaryWriter(log_dir="runs/mon_experience_1")
 
     def choose_action(self, state):
         """Choisit une action en utilisant ε-greedy."""
@@ -90,9 +92,10 @@ class QLearningAgent:
                     print("Erreur : action inconnue")
 
                 next_state = (self.agent.pos_x, self.agent.pos_y)
-                self.reward = self.reward + self.compute_reward(next_state)
-                total_reward += self.reward
-                self.update_q_table(state, action_idx, self.reward, next_state)
+
+                immediate_reward = self.compute_reward(next_state)
+                self.reward += immediate_reward
+                self.update_q_table(state, action_idx, immediate_reward, next_state)
 
                 state = next_state
 
@@ -102,16 +105,21 @@ class QLearningAgent:
             with open("results/output.txt", "a") as file:
                 print(f"Episode {episode}, Exploration Rate: {self.exploration_rate:.2f}, Win :{self.agent.has_win()}, Lose :{self.agent.has_lose()} , Reward: {self.reward}", file=file)
 
-            cumulative_rewards.append(self.reward)
+          #  cumulative_rewards.append(self.reward)
             self.exploration_rate = max(self.exploration_rate * self.exploration_decay, 0.01)
 
             if episode % 1000 == 0:
                 self.save_q_table(q_table_file)
                 print(f"Q-table sauvegardée à l'épisode {episode}")  
         
-            if episode % 100 == 0: 
-                self.plot_learning_curve(cumulative_rewards)
+            #print(f"Total Reward : {self.reward}, Episode : {episode}")
+            self.writer.add_scalar("TotalReward", self.reward, episode)
+            self.writer.flush()  # Pour forcer l’écriture
+          #  if episode % 100 == 0: 
+            #    self.plot_learning_curve(cumulative_rewards)
 
+        self.writer.close()
+        
     def check_done(self):
         """Condition pour signaler la fin d'un épisode (personnalisable)."""
         if self.agent.has_win() : 
