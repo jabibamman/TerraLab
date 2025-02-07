@@ -146,7 +146,7 @@ class EcoEnv(gym.Env):
                         sprite_rect = sprite.get_rect(center=(iso_x, iso_y))
                     self.screen.blit(sprite, sprite_rect)  
 
-        iso_x, iso_y = self.to_isometric(self.agent.pos_x, self.agent.pos_y)
+        iso_x, iso_y = self.to_isometric(self.agent.position.x, self.agent.position.y)
         pygame.draw.circle(self.screen, (0, 0, 0), [iso_x, iso_y], 2)
         sprite = self.sprites.get(20, None)
         sprite_rect = sprite.get_rect(center=(iso_x+2, iso_y+10))
