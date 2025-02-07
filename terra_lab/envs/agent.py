@@ -1,4 +1,5 @@
 from terra_lab.envs.action import Action, MOVES
+from terra_lab.envs.env import Env
 from terra_lab.envs.position import Position
 from terra_lab.utils.enums import MAP_STATES, MACHINE_TYPE
 
@@ -7,13 +8,15 @@ LEAVES_PER_GREEN_SQUARE = 2
 
 
 class Agent:
-    def __init__(self, env):
+    def __init__(self, env: Env):
         self.leaves = START_LEAVES
         self.env = env
         self.position = Position(0, 0)
 
     def reset(self):
         self.leaves = START_LEAVES
+        self.position = Position(0, 0)
+        self.env.reset()
 
     def move_up(self):
         self.position += MOVES[Action.UP]

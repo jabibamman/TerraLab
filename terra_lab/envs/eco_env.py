@@ -89,7 +89,7 @@ class EcoEnv(gym.Env):
         self.agent.env.reset()
         self.agent.reset()
 
-    def to_isometric(self, row, col):
+    def to_isometric(self, row: int, col: int) -> tuple[int, int]:
         """Convertit des coordonnées de grille en coordonnées isométriques."""
         iso_x = (col - row) * (self.cell_size // 2) + (self.agent.env.grid_size * self.cell_size // 2)
         iso_y = (col + row) * (self.cell_size // 4)
@@ -155,14 +155,14 @@ class EcoEnv(gym.Env):
 
         pygame.display.flip()
 
-    def get_cell_color(self, cell_value):
+    def get_cell_color(self, cell_value) -> tuple[int, int, int]:
         """Retourne la couleur correspondant à l'état d'une cellule."""
         for state in MAP_STATES:
             if cell_value == state.value.value:
                 return state.value.color
         return MAP_STATES.UNFERTILE_DIRT.value.color
 
-    def is_mouse_over(self, iso_x, iso_y):
+    def is_mouse_over(self, iso_x: int, iso_y: int) -> bool:
         """Vérifie si la souris survole une cellule donnée."""
         mouse_x, mouse_y = pygame.mouse.get_pos()
         return (

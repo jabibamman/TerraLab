@@ -71,7 +71,7 @@ class Env:
                     if condition(self.state[nx, ny]):
                         self.state[nx, ny] = new_state
 
-    def check_if_energy(self, row, col):
+    def check_if_energy(self, row: int, col: int) -> bool:
         """ Vérifie si une éolienne est à portée """
         effect_range = MACHINE_TYPE.WIND_TURBINE.value.range
         for dx in range(1 - effect_range, effect_range):
@@ -82,16 +82,16 @@ class Env:
                         return True
         return False
 
-    def count_grass(self):
-        """ Compte le nombre d'herbe sur la map et renvoie cette valeur """
+    def count_grass(self) -> int:
+        """ Compte le nombre d'herbes sur la map et renvoie cette valeur """
         count = 0
         for value in np.nditer(self.state):
             if value == MAP_STATES.GRASS.value.value:
                 count += 1
         return count
 
-    def can_place_turbine(self):
-        """ Vérifie si une éolienne peut encore être placé """
+    def can_place_turbine(self) -> bool:
+        """ Vérifie si une éolienne peut encore être placée """
         for value in np.nditer(self.state):
             if value == MAP_STATES.ROCK.value.value:
                 return True
