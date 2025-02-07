@@ -1,6 +1,7 @@
 import numpy as np
 
 from terra_lab.envs.abstract_agent import AbstractAgent
+from terra_lab.envs.action import Action
 from terra_lab.utils.enums import MACHINE_TYPE, MAP_STATES
 
 
@@ -21,46 +22,9 @@ class Env:
         self.initialize_map()
         self.agent.reset()
 
-    @staticmethod
-    def generate_random_coordinates(lower_boundary, upper_boundary):
-        return (
-                np.int32(np.ceil(np.random.rand() * upper_boundary + lower_boundary)),
-                np.int32(np.ceil(np.random.rand() * upper_boundary + lower_boundary)),
-            )
-
-    @staticmethod
-    def distance(coordinate1, coordinate2):
-        return np.abs(coordinate1 - coordinate2)
-
-    @staticmethod
-    def find_neighbors_with_invalid_distance(existing_rocks_coordinates, new_rock_coordinates, invalid_distance):
-        """Returns a list of neighboring rocks that whose distance with the new_rock is less than or equal invalid_distance"""
-        new_rock_x, new_rock_y = new_rock_coordinates
-        neighbors = list(filter(lambda existing_rock_coordinates: Env.distance(new_rock_x, existing_rock_coordinates[0]) <= invalid_distance \
-                                                                  or Env.distance(new_rock_y, existing_rock_coordinates[1]) <= invalid_distance
-                        , existing_rocks_coordinates))
-
-        return neighbors
-
     def randomize_initial_rock_positions(self, count_rocks = 4):
-        wind_turbine_limits = (MACHINE_TYPE.WIND_TURBINE.value.range - 1, self.grid_size - MACHINE_TYPE.WIND_TURBINE.value.range)
+        return [(5, 5), (5, 15), (5, 25), (5, 35), (15, 5), (15, 15), (15, 25), (15, 35), (25, 5), (25, 15), (25, 25), (25, 35)]
 
-        lower_boundary, upper_boundary = wind_turbine_limits
-        upper_boundary -= lower_boundary
-        initial_rock_positions = [Env.generate_random_coordinates(lower_boundary, upper_boundary)]
-        for _ in range(count_rocks - 1):
-            random_coordinates_within_limits = Env.generate_random_coordinates(lower_boundary, upper_boundary)
-
-            # Checking that the new rock is not near any already generated rock
-            invalid_neighbors = Env.find_neighbors_with_invalid_distance(initial_rock_positions, random_coordinates_within_limits, MACHINE_TYPE.WIND_TURBINE.value.range - 1)
-            # if new rock is too close to an existing rock, generate new random coordinates until we get a valid result
-            while len(invalid_neighbors) > 0:
-                random_coordinates_within_limits = Env.generate_random_coordinates(lower_boundary, upper_boundary)
-                invalid_neighbors = Env.find_neighbors_with_invalid_distance(initial_rock_positions, random_coordinates_within_limits, MACHINE_TYPE.WIND_TURBINE.value.range - 1)
-
-            initial_rock_positions.append(random_coordinates_within_limits)
-
-        return initial_rock_positions
 
     def initialize_map(self):
         """Initializes the map with some predefined state."""
@@ -101,12 +65,18 @@ class Env:
         """Applique l'action courante à la cellule spécifiée."""
         self.current_action = action
 
-        if action == MACHINE_TYPE.WIND_TURBINE.value.name:
-            self.agent.place_wind_turbine()
-        elif action == MACHINE_TYPE.PURIFIER.value.name:
-            self.agent.place_purifier()
-        elif action == MACHINE_TYPE.IRRIGATOR.value.name:
-            self.agent.place_irrigator()
+        action_mapping = {
+            Action.UP.value: self.agent.move_up,
+            Action.DOWN.value: self.agent.move_down,
+            Action.LEFT.value: self.agent.move_left,
+            Action.RIGHT.value: self.agent.move_right,
+            Action.PLACE_WIND_TURBINE.value: self.agent.place_wind_turbine,
+            Action.PLACE_IRRIGATOR.value: self.agent.place_irrigator,
+            Action.PLACE_PURIFIER.value: self.agent.place_purifier,
+        }
+
+        agent_action = action_mapping[action]
+        agent_action()
 
         if self.agent.has_win():
             # Win screen

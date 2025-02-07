@@ -4,7 +4,7 @@ from terra_lab.envs.env import Env
 from terra_lab.envs.position import Position
 from terra_lab.utils.enums import MAP_STATES, MACHINE_TYPE
 
-START_LEAVES = 250
+START_LEAVES = 500
 LEAVES_PER_GREEN_SQUARE = 2
 
 
@@ -17,7 +17,7 @@ class Agent(AbstractAgent):
     def reset(self):
         self.leaves = START_LEAVES
         self.position = Position(0, 0)
-        self.env.reset()
+        # self.env.reset()
 
     def move_up(self):
         self.position += MOVES[Action.UP]
@@ -62,7 +62,7 @@ class Agent(AbstractAgent):
 
     def can_pay_leaves(self, amount: int) -> bool:
         """ Vérifie si l'agent a assez d'argent pour payer le montant donné """
-        return self.leaves > amount
+        return self.leaves >= amount
 
     def place_wind_turbine(self):
         if not self.can_pay_leaves(MACHINE_TYPE.WIND_TURBINE.value.price):

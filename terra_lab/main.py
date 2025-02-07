@@ -1,14 +1,18 @@
 import pygame
 from terra_lab.envs import EcoEnv
+from terra_lab.envs.action import Action
 from terra_lab.envs.agent import Agent
 from terra_lab.envs.env import Env
-from terra_lab.utils.enums import MACHINE_TYPE
 
 
 ACTION_MAPPING = {
-    pygame.K_p: MACHINE_TYPE.WIND_TURBINE.value.name,
-    pygame.K_u: MACHINE_TYPE.IRRIGATOR.value.name,
-    pygame.K_r: MACHINE_TYPE.PURIFIER.value.name,
+    pygame.K_p: Action.PLACE_WIND_TURBINE.value,
+    pygame.K_u: Action.PLACE_IRRIGATOR.value,
+    pygame.K_r: Action.PLACE_PURIFIER.value,
+    pygame.K_DOWN: Action.DOWN.value,
+    pygame.K_UP: Action.UP.value,
+    pygame.K_RIGHT: Action.RIGHT.value,
+    pygame.K_LEFT: Action.LEFT.value,
 }
 
 def handle_action(event_key, map_instance):
@@ -19,22 +23,6 @@ def handle_action(event_key, map_instance):
     action = ACTION_MAPPING.get(event_key)
     if action:
         map_instance.step(action)
-
-
-def handle_movement(event_key, map_instance):
-    """
-    Handles movement key presses to update the current position.
-    Returns the updated x and y coordinates.
-    """
-    if event_key == pygame.K_DOWN:
-        map_instance.agent.move_down()
-    elif event_key == pygame.K_UP:
-        map_instance.agent.move_up()
-    elif event_key == pygame.K_RIGHT:
-        map_instance.agent.move_right()
-    elif event_key == pygame.K_LEFT:
-        map_instance.agent.move_left()
-
 
 def main():
     """Main function to run the EcoEnv game."""
@@ -56,7 +44,6 @@ def main():
                 done = True
             elif event.type == pygame.KEYDOWN:
                 handle_action(event.key, map_instance)
-                handle_movement(event.key, map_instance)
 
         map_instance.render()
     map_instance.close()
