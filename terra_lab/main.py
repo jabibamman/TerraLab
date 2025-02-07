@@ -42,7 +42,7 @@ def main():
     map_instance = EcoEnv(env)
 
     pygame.key.set_repeat(200, 50)
-    #mode = input("Enter mode (train/play): ")
+    #mode = await input("Enter mode (train/play): ")
     mode = "train"
 
     if mode == "train":

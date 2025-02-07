@@ -15,6 +15,6 @@ class MAP_STATES(Enum):
 
 
 class MACHINE_TYPE(Enum):
-    WIND_TURBINE = Machine(name="WIND_TURBINE", range=6, price=75)
-    PURIFIER = Machine(name="PURIFIER", range=5, price=50)
-    IRRIGATOR = Machine(name="IRRIGATOR", range=7, price=50)
+    WIND_TURBINE = Machine(name="WIND_TURBINE", range=6, price=50)
+    PURIFIER = Machine(name="PURIFIER", range=5, price=25)
+    IRRIGATOR = Machine(name="IRRIGATOR", range=7, price=25)

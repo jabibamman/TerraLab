@@ -2,10 +2,9 @@ import numpy as np
 
 from terra_lab.utils.enums import MACHINE_TYPE, MAP_STATES
 
-
 class Env:
     def __init__(self):
-        self.grid_size = 5
+        self.grid_size = 40
         self.state = np.zeros((self.grid_size, self.grid_size), dtype=np.int32)
         self.initialize_map()
 
@@ -24,44 +23,51 @@ class Env:
     @staticmethod
     def distance(coordinate1, coordinate2):
         return np.abs(coordinate1 - coordinate2)
-
+    
+    @staticmethod
+    def euclidean_distance(x1, y1, x2, y2):
+        return np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+    
     @staticmethod
     def find_neighbors_with_invalid_distance(existing_rocks_coordinates, new_rock_coordinates, invalid_distance):
         """Returns a list of neighboring rocks that whose distance with the new_rock is less than or equal invalid_distance"""
         new_rock_x, new_rock_y = new_rock_coordinates
-        neighbors = list(filter(lambda existing_rock_coordinates: Env.distance(new_rock_x, existing_rock_coordinates[0]) <= invalid_distance \
-                                                                  or Env.distance(new_rock_y, existing_rock_coordinates[1]) <= invalid_distance
-                        , existing_rocks_coordinates))
-
+        neighbors = list(filter(
+            lambda existing_rock_coordinates: (
+                Env.euclidean_distance(new_rock_x, new_rock_y,
+                                existing_rock_coordinates[0], existing_rock_coordinates[1]) 
+                <= invalid_distance
+            ),
+            existing_rocks_coordinates
+        ))
         return neighbors
 
-    def randomize_initial_rock_positions(self, count_rocks = 4):
-        wind_turbine_limits = (MACHINE_TYPE.WIND_TURBINE.value.range - 1, self.grid_size - MACHINE_TYPE.WIND_TURBINE.value.range)
+    def randomize_initial_rock_positions(self):
+        """
+        Place au moins 1 rocher dans chaque bloc de 5x5 de la grille.
+        """
+        block_size = 10
+        positions = []
 
-        lower_boundary, upper_boundary = wind_turbine_limits
-        upper_boundary -= lower_boundary
-        initial_rock_positions = [Env.generate_random_coordinates(lower_boundary, upper_boundary)]
-        for _ in range(count_rocks - 1):
-            random_coordinates_within_limits = Env.generate_random_coordinates(lower_boundary, upper_boundary)
+        for start_x in range(0, self.grid_size, block_size):
+            for start_y in range(0, self.grid_size, block_size):
+                end_x = min(start_x + block_size, self.grid_size)
+                end_y = min(start_y + block_size, self.grid_size)
 
-            # Checking that the new rock is not near any already generated rock
-            invalid_neighbors = Env.find_neighbors_with_invalid_distance(initial_rock_positions, random_coordinates_within_limits, MACHINE_TYPE.WIND_TURBINE.value.range - 1)
-            # if new rock is too close to an existing rock, generate new random coordinates until we get a valid result
-            while len(invalid_neighbors) > 0:
-                random_coordinates_within_limits = Env.generate_random_coordinates(lower_boundary, upper_boundary)
-                invalid_neighbors = Env.find_neighbors_with_invalid_distance(initial_rock_positions, random_coordinates_within_limits, MACHINE_TYPE.WIND_TURBINE.value.range - 1)
+                x = np.random.randint(start_x, end_x)
+                y = np.random.randint(start_y, end_y)
 
-            initial_rock_positions.append(random_coordinates_within_limits)
+                positions.append((x, y))
 
-        return initial_rock_positions
-
+        return positions
+    
     def initialize_map(self):
         """Initializes the map with some predefined state."""
-        #initial_positions = self.randomize_initial_rock_positions()
-        initial_positions = [(1, 1), (1, 3), (3, 1), (3, 3)]
+        initial_positions = self.randomize_initial_rock_positions()
 
         for x, y in initial_positions:
-            self.state[x, y] = 1
+            self.state[x, y] = MAP_STATES.ROCK.value.value
+
 
     def apply_effect(self, row, col, effect_range, condition, new_state):
         """ Applique un effet sur les cellules dans une plage définie """

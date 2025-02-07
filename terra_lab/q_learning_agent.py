@@ -6,20 +6,22 @@ from terra_lab.utils.enums import MACHINE_TYPE
 from terra_lab.utils.enums import MAP_STATES
 import matplotlib.pyplot as plt
 from torch.utils.tensorboard import SummaryWriter 
+import datetime 
 
 class QLearningAgent:
     def __init__(self, env, learning_rate=0.1, discount_factor=0.9, exploration_rate=1.0, exploration_decay=0.995):
         self.env = env
         self.map_instance = EcoEnv(env)
         self.agent = self.map_instance.agent
+        self.actions = ["place_wind_turbine", "place_purifier", "place_irrigator", "move_up", "move_down", "move_left", "move_right"]
+
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
         self.exploration_rate = exploration_rate
         self.exploration_decay = exploration_decay
         self.reward = 0
-        self.q_table = self.load_q_table()
-        self.actions = ["place_wind_turbine", "place_purifier", "place_irrigator", "move_up", "move_down", "move_left", "move_right"]
-        self.writer = SummaryWriter(log_dir="runs/mon_experience_1")
+        self.load_q_table()
+        self.writer = SummaryWriter(log_dir="runs/grid_40_40" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
 
     def choose_action(self, state):
         """Choisit une action en utilisant ε-greedy."""
@@ -29,20 +31,29 @@ class QLearningAgent:
             x, y = state
             return np.argmax(self.q_table[x, y, :])
 
-    def save_q_table(self, filename="q_table.npy"):
-        """Sauvegarde la Q-table dans un fichier."""
-        print("Sauvegarde de la Q-table dans ", filename)
-        np.save(filename, self.q_table)
+    def save_q_table(self, filename="q_table.npz"):
+        np.savez(filename, 
+                q_table=self.q_table, 
+                exploration_rate=self.exploration_rate)
 
-    def load_q_table(self, filename="q_table.npy"):
-        """Charge la Q-table depuis un fichier."""
+
+    def load_q_table(self, filename="q_table.npz"):
         try:
-            return np.load(filename)
+            data = np.load(filename)
+            loaded_q_table = data["q_table"]
+            if loaded_q_table.shape[0] != self.env.grid_size or loaded_q_table.shape[1] != self.env.grid_size:
+                print("Q-table incompatible, réinitialisation à la taille :",
+                    (self.env.grid_size, self.env.grid_size))
+                self.q_table = np.zeros((self.env.grid_size, self.env.grid_size, len(self.actions)))
+                self.exploration_rate = 1.0
+            else:
+                self.q_table = loaded_q_table
+                self.exploration_rate = data["exploration_rate"].item()
         except FileNotFoundError:
-            print("Fichier de Q-table introuvable, création d'une nouvelle Q-table.")
-            return np.zeros(
-            (self.env.grid_size, self.env.grid_size, len(MACHINE_TYPE) + 4))
-   
+            print("Fichier de Q-table introuvable, création d’une nouvelle Q-table.")
+            self.q_table = np.zeros((self.env.grid_size, self.env.grid_size, len(self.actions)))
+            self.exploration_rate = 1.0
+
             
     def update_q_table(self, state, action, reward, next_state):
         """Met à jour la Q-table selon la règle de Q-learning."""
@@ -53,11 +64,11 @@ class QLearningAgent:
         td_error = td_target - self.q_table[x, y, action]
         self.q_table[x, y, action] += self.learning_rate * td_error
 
-    def train(self, episodes=1000, q_table_file="q_table.npy"):
+    def train(self, episodes=1000, q_table_file="q_table.npz"):
         """Entraîne l'agent sur un certain nombre d'épisodes."""
-        #if self.q_table.any():
-            # Si une Q-table existe déjà, réduire l'exploration initiale
-         #   self.exploration_rate = 0.1
+        if self.q_table.any():
+            print("Q-table déjà chargée, entraînement en cours.")
+            self.exploration_rate = 0.1
         cumulative_rewards = []
 
         for episode in range(episodes):
@@ -105,18 +116,14 @@ class QLearningAgent:
             with open("results/output.txt", "a") as file:
                 print(f"Episode {episode}, Exploration Rate: {self.exploration_rate:.2f}, Win :{self.agent.has_win()}, Lose :{self.agent.has_lose()} , Reward: {self.reward}", file=file)
 
-          #  cumulative_rewards.append(self.reward)
             self.exploration_rate = max(self.exploration_rate * self.exploration_decay, 0.01)
 
             if episode % 1000 == 0:
                 self.save_q_table(q_table_file)
                 print(f"Q-table sauvegardée à l'épisode {episode}")  
         
-            #print(f"Total Reward : {self.reward}, Episode : {episode}")
             self.writer.add_scalar("TotalReward", self.reward, episode)
-            self.writer.flush()  # Pour forcer l’écriture
-          #  if episode % 100 == 0: 
-            #    self.plot_learning_curve(cumulative_rewards)
+            self.writer.flush() 
 
         self.writer.close()
         
