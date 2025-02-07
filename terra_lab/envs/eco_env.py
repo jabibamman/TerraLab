@@ -64,30 +64,6 @@ class EcoEnv(gym.Env):
 
     def step(self, action):
         self.env.step(action)
-    # def step(self, action):
-    #     """Applique l'action courante à la cellule spécifiée."""
-    #     self.current_action = action
-    #
-    #     if action == MACHINE_TYPE.WIND_TURBINE.value.name:
-    #         self.agent.place_wind_turbine()
-    #     elif action == MACHINE_TYPE.PURIFIER.value.name:
-    #         self.agent.place_purifier()
-    #     elif action == MACHINE_TYPE.IRRIGATOR.value.name:
-    #         self.agent.place_irrigator()
-    #
-    #     if self.agent.has_win():
-    #         # Win screen
-    #         pass
-    #     elif self.agent.has_lose():
-    #         # Lose screen
-    #         self.reset()
-    #         pass
-    #
-    #     return self.env.state
-    #
-    # def reset(self):
-    #     self.env.reset()
-    #     self.agent.reset()
 
     def reset(self):
         self.env.reset()
