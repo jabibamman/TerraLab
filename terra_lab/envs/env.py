@@ -1,5 +1,6 @@
 import numpy as np
 
+from terra_lab.envs.abstract_agent import AbstractAgent
 from terra_lab.utils.enums import MACHINE_TYPE, MAP_STATES
 
 
@@ -8,11 +9,17 @@ class Env:
         self.grid_size = 40
         self.state = np.zeros((self.grid_size, self.grid_size), dtype=np.int32)
         self.initialize_map()
+        self.current_action = 0
+        self.agent: AbstractAgent = None
+
+    def set_agent(self, agent):
+        self.agent = agent
 
     def reset(self):
         """ Réinitialise l'environnement """
         self.state = np.zeros((self.grid_size, self.grid_size), dtype=np.int32)
         self.initialize_map()
+        self.agent.reset()
 
     @staticmethod
     def generate_random_coordinates(lower_boundary, upper_boundary):
@@ -89,6 +96,27 @@ class Env:
             if value == MAP_STATES.GRASS.value.value:
                 count += 1
         return count
+
+    def step(self, action):
+        """Applique l'action courante à la cellule spécifiée."""
+        self.current_action = action
+
+        if action == MACHINE_TYPE.WIND_TURBINE.value.name:
+            self.agent.place_wind_turbine()
+        elif action == MACHINE_TYPE.PURIFIER.value.name:
+            self.agent.place_purifier()
+        elif action == MACHINE_TYPE.IRRIGATOR.value.name:
+            self.agent.place_irrigator()
+
+        if self.agent.has_win():
+            # Win screen
+            pass
+        elif self.agent.has_lose():
+            # Lose screen
+            self.reset()
+            pass
+
+        return self.state
 
     def can_place_turbine(self) -> bool:
         """ Vérifie si une éolienne peut encore être placée """

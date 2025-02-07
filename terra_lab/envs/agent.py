@@ -1,3 +1,4 @@
+from terra_lab.envs.abstract_agent import AbstractAgent
 from terra_lab.envs.action import Action, MOVES
 from terra_lab.envs.env import Env
 from terra_lab.envs.position import Position
@@ -7,7 +8,7 @@ START_LEAVES = 250
 LEAVES_PER_GREEN_SQUARE = 2
 
 
-class Agent:
+class Agent(AbstractAgent):
     def __init__(self, env: Env):
         self.leaves = START_LEAVES
         self.env = env

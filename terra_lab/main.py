@@ -1,5 +1,6 @@
 import pygame
 from terra_lab.envs import EcoEnv
+from terra_lab.envs.agent import Agent
 from terra_lab.envs.env import Env
 from terra_lab.utils.enums import MACHINE_TYPE
 
@@ -38,6 +39,8 @@ def handle_movement(event_key, map_instance):
 def main():
     """Main function to run the EcoEnv game."""
     env = Env()
+    agent = Agent(env)
+    env.set_agent(agent)
     map_instance = EcoEnv(env)
 
     pygame.key.set_repeat(200, 50)

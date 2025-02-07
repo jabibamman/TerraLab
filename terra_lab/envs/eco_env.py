@@ -3,7 +3,6 @@ from gym import spaces
 import numpy as np
 import pygame
 
-from terra_lab.envs.agent import Agent
 from terra_lab.utils.enums import MACHINE_TYPE, MAP_STATES
 
 
@@ -15,7 +14,8 @@ class EcoEnv(gym.Env):
     def __init__(self, env):
         super(EcoEnv, self).__init__()
 
-        self.agent = Agent(env)
+        self.env = env
+        self.agent = self.env.agent
 
         self.cell_size = 20
         self.grass_animation_count = 0
@@ -52,46 +52,49 @@ class EcoEnv(gym.Env):
 
 
         self.observation_space = spaces.Box(
-            low=0, high=2, shape=(self.agent.env.grid_size, self.agent.env.grid_size), dtype=np.int32
+            low=0, high=2, shape=(self.env.grid_size, self.env.grid_size), dtype=np.int32
         )
         self.action_space = spaces.Discrete(3)
 
         pygame.init()
         self.screen = pygame.display.set_mode(
-            (self.cell_size * self.agent.env.grid_size, self.cell_size * self.agent.env.grid_size - 150)
+            (self.cell_size * self.env.grid_size, self.cell_size * self.env.grid_size - 150)
         )
         pygame.display.set_caption("EcoEnv")
 
-        self.current_action = 0
-
     def step(self, action):
-        """Applique l'action courante à la cellule spécifiée."""
-        self.current_action = action
-
-        if action == MACHINE_TYPE.WIND_TURBINE.value.name:
-            self.agent.place_wind_turbine()
-        elif action == MACHINE_TYPE.PURIFIER.value.name:
-            self.agent.place_purifier()
-        elif action == MACHINE_TYPE.IRRIGATOR.value.name:
-            self.agent.place_irrigator()
-
-        if self.agent.has_win():
-            # Win screen
-            pass
-        elif self.agent.has_lose():
-            # Lose screen
-            self.reset()
-            pass
-
-        return self.agent.env.state
+        self.env.step(action)
+    # def step(self, action):
+    #     """Applique l'action courante à la cellule spécifiée."""
+    #     self.current_action = action
+    #
+    #     if action == MACHINE_TYPE.WIND_TURBINE.value.name:
+    #         self.agent.place_wind_turbine()
+    #     elif action == MACHINE_TYPE.PURIFIER.value.name:
+    #         self.agent.place_purifier()
+    #     elif action == MACHINE_TYPE.IRRIGATOR.value.name:
+    #         self.agent.place_irrigator()
+    #
+    #     if self.agent.has_win():
+    #         # Win screen
+    #         pass
+    #     elif self.agent.has_lose():
+    #         # Lose screen
+    #         self.reset()
+    #         pass
+    #
+    #     return self.env.state
+    #
+    # def reset(self):
+    #     self.env.reset()
+    #     self.agent.reset()
 
     def reset(self):
-        self.agent.env.reset()
-        self.agent.reset()
+        self.env.reset()
 
     def to_isometric(self, row: int, col: int) -> tuple[int, int]:
         """Convertit des coordonnées de grille en coordonnées isométriques."""
-        iso_x = (col - row) * (self.cell_size // 2) + (self.agent.env.grid_size * self.cell_size // 2)
+        iso_x = (col - row) * (self.cell_size // 2) + (self.env.grid_size * self.cell_size // 2)
         iso_y = (col + row) * (self.cell_size // 4)
         return iso_x, iso_y
 
@@ -111,10 +114,10 @@ class EcoEnv(gym.Env):
             text_surface = font.render(text, True, (255, 255, 255))
             self.screen.blit(text_surface, (10, 400 + i * 50))
 
-        for row in range(self.agent.env.grid_size):
-            for col in range(self.agent.env.grid_size):
-                if self.agent.env.state[row, col] == MAP_STATES.WIND_TURBINE.value.value or self.agent.env.state[row, col] == MAP_STATES.IRRIGATOR.value.value :
-                    color = self.get_cell_color(self.agent.env.state[row, col])
+        for row in range(self.env.grid_size):
+            for col in range(self.env.grid_size):
+                if self.env.state[row, col] == MAP_STATES.WIND_TURBINE.value.value or self.env.state[row, col] == MAP_STATES.IRRIGATOR.value.value :
+                    color = self.get_cell_color(self.env.state[row, col])
                     iso_x, iso_y = self.to_isometric(row, col)
 
                     points = [
@@ -126,7 +129,7 @@ class EcoEnv(gym.Env):
 
                     pygame.draw.polygon(self.screen, color, points)
 
-                cell_value = self.agent.env.state[row, col]
+                cell_value = self.env.state[row, col]
                 iso_x, iso_y = self.to_isometric(row, col)
                 if cell_value != MAP_STATES.GRASS.value.value :
                     sprite = self.sprites.get(cell_value, None)
@@ -138,9 +141,9 @@ class EcoEnv(gym.Env):
 
 
                 if sprite:
-                    if self.agent.env.state[row, col] == MAP_STATES.UNFERTILE_DIRT.value.value or self.agent.env.state[row, col] == MAP_STATES.FERTILE_DIRT.value.value or self.agent.env.state[row, col] == MAP_STATES.GRASS.value.value :
+                    if self.env.state[row, col] == MAP_STATES.UNFERTILE_DIRT.value.value or self.env.state[row, col] == MAP_STATES.FERTILE_DIRT.value.value or self.env.state[row, col] == MAP_STATES.GRASS.value.value :
                         sprite_rect = sprite.get_rect(center=(iso_x, iso_y+3))
-                    elif self.agent.env.state[row, col] == MAP_STATES.WIND_TURBINE.value.value :
+                    elif self.env.state[row, col] == MAP_STATES.WIND_TURBINE.value.value :
                         sprite_rect = sprite.get_rect(center=(iso_x, iso_y-5))
                     else:
                         sprite_rect = sprite.get_rect(center=(iso_x, iso_y))
