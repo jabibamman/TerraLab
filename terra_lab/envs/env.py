@@ -2,6 +2,10 @@ import numpy as np
 
 from terra_lab.envs.abstract_agent import AbstractAgent
 from terra_lab.envs.action import Action
+from terra_lab.envs.action import MOVES, Action
+from terra_lab.envs.position import Position
+from terra_lab.rl.reward import Reward
+from terra_lab.rl.state import State
 from terra_lab.utils.enums import MACHINE_TYPE, MAP_STATES
 
 
@@ -80,10 +84,11 @@ class Env:
 
         if self.agent.has_win():
             # Win screen
+            self.agent.reset()
             pass
         elif self.agent.has_lose():
             # Lose screen
-            self.reset()
+            self.agent.reset()
             pass
 
         return self.state
@@ -94,3 +99,29 @@ class Env:
             if value == MAP_STATES.ROCK.value.value:
                 return True
         return False
+
+    def do(self, action: Action) -> Reward:
+        reward = Reward.DEFAULT
+
+        if action == Action.UP:
+            pass
+        elif action == Action.DOWN:
+            pass
+        elif action == Action.LEFT:
+            pass
+        elif action == Action.RIGHT:
+            pass
+        elif action == Action.PLACE_WIND_TURBINE:
+            reward = self.agent.place_wind_turbine()
+        elif action == MACHINE_TYPE.PURIFIER.value.name:
+            reward = self.agent.place_purifier()
+        elif action == MACHINE_TYPE.IRRIGATOR.value.name:
+            reward = self.agent.place_irrigator()
+
+        if self.agent.has_win():
+            reward += Reward.WIN
+        elif self.agent.has_lose():
+            reward += Reward.LOSE
+            pass
+
+        return reward

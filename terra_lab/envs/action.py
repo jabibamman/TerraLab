@@ -16,5 +16,5 @@ MOVES = {
     Action.UP : Position(0, -1),
     Action.DOWN : Position(0, 1),
     Action.LEFT : Position(1, 0),
-    Action.RIGHT : Position(-1, 0)
+    Action.RIGHT : Position(-1, 0),
 }

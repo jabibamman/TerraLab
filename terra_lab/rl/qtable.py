@@ -22,8 +22,7 @@ class QTable:
 
 
     def __repr__(self):
-        res = ' ' * 13
-        res += 'U      D      L      R\n'
+        res = 'UP\tDOWN\tLEFT\tRIGHT\tTURB\tIRRIG\tPURIF\n'
         for state in self.qtable:
             res += str(state) + " "
             for action in self.qtable[state]:

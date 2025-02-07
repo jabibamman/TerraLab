@@ -3,7 +3,7 @@ class Position:
         self.x = x
         self.y = y
 
-    def to_tuple(self):
+    def to_tuple(self) -> tuple[int, int]:
         return self.x, self.y
 
     def __eq__(self, other):
