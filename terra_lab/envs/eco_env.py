@@ -3,6 +3,7 @@ from gym import spaces
 import numpy as np
 import pygame
 
+from terra_lab.envs.action import Action
 from terra_lab.utils.enums import MACHINE_TYPE, MAP_STATES
 
 
@@ -62,7 +63,7 @@ class EcoEnv(gym.Env):
         )
         pygame.display.set_caption("EcoEnv")
 
-    def step(self, action):
+    def step(self, action: Action):
         self.env.step(action)
 
     def reset(self):

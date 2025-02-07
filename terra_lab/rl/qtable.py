@@ -15,17 +15,17 @@ class QTable:
         self.qtable[state][action] += self.learning_rate * change
 
 
-    def best_action(self, state):
+    def best_action(self, state) -> Action:
         if state not in self.qtable:
             self.qtable[state] = { Action.UP: 0, Action.DOWN: 0, Action.LEFT: 0, Action.RIGHT: 0, Action.PLACE_WIND_TURBINE: 0, Action.PLACE_IRRIGATOR: 0, Action.PLACE_PURIFIER: 0 }
         return max(self.qtable[state], key=self.qtable[state].get)
 
 
     def __repr__(self):
-        res = 'UP\tDOWN\tLEFT\tRIGHT\tTURB\tIRRIG\tPURIF\n'
+        res = 'STATE\t\t\t\tUP\t\tDOWN\tLEFT\tRIGHT\tTURB\tIRRIG\tPURIF\n'
         for state in self.qtable:
-            res += str(state) + " "
+            res += str(state) + "\t"
             for action in self.qtable[state]:
-                res += f'{self.qtable[state][action]:7.1f}'
+                res += f'{self.qtable[state][action]:7.1f}\t'
             res += '\n'
         return res

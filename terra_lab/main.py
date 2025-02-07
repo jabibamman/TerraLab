@@ -1,9 +1,13 @@
+import time
+
 import pygame
 from terra_lab.envs import EcoEnv
 from terra_lab.envs.action import Action
 from terra_lab.envs.agent import Agent
 from terra_lab.envs.env import Env
+from terra_lab.rl.ai_agent import AIAgent
 
+AI_MODE = False
 
 ACTION_MAPPING = {
     pygame.K_p: Action.PLACE_WIND_TURBINE.value,
@@ -27,26 +31,35 @@ def handle_action(event_key, map_instance):
 def main():
     """Main function to run the EcoEnv game."""
     env = Env()
-    agent = Agent(env)
-    env.set_agent(agent)
-    map_instance = EcoEnv(env)
 
-    pygame.key.set_repeat(200, 50)
+    if AI_MODE:
+        agent = AIAgent(env)
+        env.set_agent(agent)
+        env.step(Action.PLACE_WIND_TURBINE)
 
-    done = False
-    while not done:
-        map_instance.grass_animation_count += 1
-        if map_instance.grass_animation_count > 210:
-            map_instance.grass_animation_count = 0
+    else:
+        agent = AIAgent(env)
+        env.set_agent(agent)
+        map_instance = EcoEnv(env)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                done = True
-            elif event.type == pygame.KEYDOWN:
-                handle_action(event.key, map_instance)
+        pygame.key.set_repeat(200, 50)
 
-        map_instance.render()
-    map_instance.close()
+        done = False
+        while not done:
+            map_instance.render()
+            map_instance.grass_animation_count += 1
+            map_instance.grass_animation_count %= 210
+
+            # for event in pygame.event.get():
+            #     if event.type == pygame.QUIT:
+            #         done = True
+            #     elif event.type == pygame.KEYDOWN:
+            #         handle_action(event.key, map_instance)
+            action, reward = agent.do()
+            print(f'Action: {action}\tReward: {reward}\tScore: {agent.score}\tPosition: {agent.position}')
+            print(agent.qtable)
+            time.sleep(1)
+        map_instance.close()
 
 
 if __name__ == "__main__":

@@ -6,4 +6,4 @@ class Reward(Enum):
     LOSE = -1000
     WRONG_INPUT = -100
     NOT_ENOUGHT_MONEY = -100
-    DEFAULT = -1
+    MOVE = -1

@@ -18,20 +18,23 @@ class Agent(AbstractAgent):
     def reset(self):
         self.leaves = START_LEAVES
         self.position = Position(0, 0)
-        # self.env.reset()
 
-    def move_up(self):
+    def move_up(self) -> int:
         self.position += MOVES[Action.UP]
         self.position %= self.env.grid_size
-    def move_down(self):
+        return Reward.MOVE.value
+    def move_down(self) -> int:
         self.position += MOVES[Action.DOWN]
         self.position %= self.env.grid_size
-    def move_left(self):
+        return Reward.MOVE.value
+    def move_left(self) -> int:
         self.position += MOVES[Action.LEFT]
         self.position %= self.env.grid_size
-    def move_right(self):
+        return Reward.MOVE.value
+    def move_right(self) -> int:
         self.position += MOVES[Action.RIGHT]
         self.position %= self.env.grid_size
+        return Reward.MOVE.value
 
     def has_win(self) -> bool:
         """ Renvoie True si le joueur a gagné """

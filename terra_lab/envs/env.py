@@ -65,33 +65,33 @@ class Env:
                 count += 1
         return count
 
-    def step(self, action):
+    def step(self, action: Action) -> int:
         """Applique l'action courante à la cellule spécifiée."""
         self.current_action = action
 
         action_mapping = {
-            Action.UP.value: self.agent.move_up,
-            Action.DOWN.value: self.agent.move_down,
-            Action.LEFT.value: self.agent.move_left,
-            Action.RIGHT.value: self.agent.move_right,
-            Action.PLACE_WIND_TURBINE.value: self.agent.place_wind_turbine,
-            Action.PLACE_IRRIGATOR.value: self.agent.place_irrigator,
-            Action.PLACE_PURIFIER.value: self.agent.place_purifier,
+            Action.UP: self.agent.move_up,
+            Action.DOWN: self.agent.move_down,
+            Action.LEFT: self.agent.move_left,
+            Action.RIGHT: self.agent.move_right,
+            Action.PLACE_WIND_TURBINE: self.agent.place_wind_turbine,
+            Action.PLACE_IRRIGATOR: self.agent.place_irrigator,
+            Action.PLACE_PURIFIER: self.agent.place_purifier,
         }
 
         agent_action = action_mapping[action]
-        agent_action()
+        reward = agent_action()
 
         if self.agent.has_win():
-            # Win screen
-            self.agent.reset()
+            reward += Reward.WIN
+            self.reset()
             pass
         elif self.agent.has_lose():
-            # Lose screen
-            self.agent.reset()
+            reward += Reward.LOSE
+            self.reset()
             pass
 
-        return self.state
+        return reward
 
     def can_place_turbine(self) -> bool:
         """ Vérifie si une éolienne peut encore être placée """
@@ -99,29 +99,3 @@ class Env:
             if value == MAP_STATES.ROCK.value.value:
                 return True
         return False
-
-    def do(self, action: Action) -> Reward:
-        reward = Reward.DEFAULT
-
-        if action == Action.UP:
-            pass
-        elif action == Action.DOWN:
-            pass
-        elif action == Action.LEFT:
-            pass
-        elif action == Action.RIGHT:
-            pass
-        elif action == Action.PLACE_WIND_TURBINE:
-            reward = self.agent.place_wind_turbine()
-        elif action == MACHINE_TYPE.PURIFIER.value.name:
-            reward = self.agent.place_purifier()
-        elif action == MACHINE_TYPE.IRRIGATOR.value.name:
-            reward = self.agent.place_irrigator()
-
-        if self.agent.has_win():
-            reward += Reward.WIN
-        elif self.agent.has_lose():
-            reward += Reward.LOSE
-            pass
-
-        return reward

@@ -4,13 +4,13 @@ class AbstractAgent(ABC):
     @abstractmethod
     def reset(self):
         pass
-    def move_up(self):
+    def move_up(self) -> int:
         pass
-    def move_down(self):
+    def move_down(self) -> int:
         pass
-    def move_left(self):
+    def move_left(self) -> int:
         pass
-    def move_right(self):
+    def move_right(self) -> int:
         pass
     def has_win(self) -> bool:
         pass
@@ -22,9 +22,9 @@ class AbstractAgent(ABC):
         pass
     def can_pay_leaves(self, amount: int) -> bool:
         pass
-    def place_wind_turbine(self):
+    def place_wind_turbine(self) -> int:
         pass
-    def place_purifier(self):
+    def place_purifier(self) -> int:
         pass
-    def place_irrigator(self):
+    def place_irrigator(self) -> int:
         pass

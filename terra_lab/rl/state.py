@@ -8,10 +8,13 @@ class Radar:
     def __eq__(self, other):
         return self.to_value() == other.to_value()
 
+    def __hash__(self):
+        return hash(self.to_value())
+
     def __str__(self):
         return f"({self.to_value()})"
 
-    def to_value(self):
+    def to_value(self) -> int:
         value = 0
         if self.UP:
             value += 1
@@ -34,8 +37,14 @@ class State:
     def __eq__(self, other):
         return self.next_rock == other.next_rock and self.next_wind_turbine == other.next_wind_turbine and self.bloc_type == other.bloc_type
 
+    def __hash__(self):
+        return hash((self.next_rock, self.next_wind_turbine, self.distance_next_wind_turbine, self.bloc_type))
+
     def __iter__(self):
         return iter(self.to_tuple())
+
+    def __str__(self):
+        return f"{self.to_tuple()}"
 
     def to_tuple(self):
         return self.next_rock.to_value(), self.next_wind_turbine.to_value(), self.distance_next_wind_turbine, self.bloc_type
