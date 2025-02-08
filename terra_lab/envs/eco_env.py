@@ -77,7 +77,6 @@ class EcoEnv(gym.Env):
 
     def render(self):
         """Affiche l'état actuel de l'environnement."""
-        print('RENDERING')
         self.screen.fill((0, 0, 0))
         font = pygame.font.Font(None, 36)
 

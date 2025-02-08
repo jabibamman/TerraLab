@@ -73,8 +73,8 @@ def ai_gui_mode(env: Env):
             action, reward, done = agent.do()
             print(f'Action: {action}\tReward: {reward}\tScore: {agent.score}\tPosition: {agent.position}')
             # print(agent.qtable)
-            time.sleep(0.3)
             map_instance.render()
+            time.sleep(0.3)
         if agent.has_win():
             win_or_lose = "Win"
         else:
@@ -107,12 +107,15 @@ def human_mode(env: Env):
                 handle_action(event.key, map_instance)
     map_instance.close()
 
+def plot_mode(env):
+    env.score_plotter.plot_scores()
 
 CURRENT_MODE = Mode.AI_CONSOLE
 MODE_MAPPING = {
     Mode.AI_CONSOLE: ai_console_mode,
     Mode.AI_GUI: ai_gui_mode,
     Mode.HUMAN: human_mode,
+    Mode.PLOT: plot_mode,
 }
 
 def choose_mode(mode):
@@ -121,6 +124,7 @@ def choose_mode(mode):
         '--aic': Mode.AI_CONSOLE,
         '--aig': Mode.AI_GUI,
         '--hc': Mode.HUMAN,
+        '--plt': Mode.PLOT,
     }
     CURRENT_MODE = options_to_mode[mode]
 

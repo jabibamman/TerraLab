@@ -14,6 +14,10 @@ class Agent(AbstractAgent):
         self.leaves = START_LEAVES
         self.env = env
         self.position = Position(0, 0)
+        self.score = 0
+
+    def get_score(self):
+        return self.score
 
     def reset(self):
         self.leaves = START_LEAVES

@@ -51,7 +51,7 @@ class QTable:
             json.dump(data, f, indent=4)
 
     def load_qtable(self, filename="qtable.json"):
-        if os.path.exists("qtable.json"):
+        if os.path.exists(filename):
             with open(filename, "r") as f:
                 data = json.load(f)
 

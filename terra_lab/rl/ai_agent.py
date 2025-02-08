@@ -12,7 +12,6 @@ class AIAgent(Agent):
         super().__init__(env)
         self.qtable = QTable(0.8, 0.9, 1.0)
         self.state = self.get_current_state()
-        self.score = 0
         self.history = []
 
 

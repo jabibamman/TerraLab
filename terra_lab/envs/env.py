@@ -3,6 +3,7 @@ import numpy as np
 from terra_lab.envs.abstract_agent import AbstractAgent
 from terra_lab.envs.action import Action
 from terra_lab.rl.reward import Reward
+from terra_lab.rl.score_plotter import ScorePlotter
 from terra_lab.utils.enums import MACHINE_TYPE, MAP_STATES
 
 
@@ -13,6 +14,7 @@ class Env:
         self.initialize_map()
         self.current_action = 0
         self.agent: AbstractAgent = None
+        self.score_plotter = ScorePlotter()
 
     def set_agent(self, agent):
         self.agent = agent
@@ -21,11 +23,12 @@ class Env:
         """ Réinitialise l'environnement """
         self.state = np.zeros((self.grid_size, self.grid_size), dtype=np.int32)
         self.initialize_map()
+        self.score_plotter.add_score(self.agent.get_score())
+        self.score_plotter.save_scores()
         self.agent.reset()
 
     def randomize_initial_rock_positions(self, count_rocks = 4):
         return [(5, 5), (5, 15), (5, 25), (5, 35), (15, 5), (15, 15), (15, 25), (15, 35), (25, 5), (25, 15), (25, 25), (25, 35)]
-
 
     def initialize_map(self):
         """Initializes the map with some predefined state."""
