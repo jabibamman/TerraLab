@@ -10,7 +10,7 @@ from terra_lab.utils.enums import MAP_STATES
 class AIAgent(Agent):
     def __init__(self, env):
         super().__init__(env)
-        self.qtable = QTable(0.8, 0.9, 1.0)
+        self.qtable = QTable(0.8, 0.99, 1.0)
         self.state = self.get_current_state()
         self.history = []
 
@@ -60,6 +60,6 @@ class AIAgent(Agent):
 
     def get_current_state(self) -> State:
         next_rock, _ = self.find_nearest_element(MAP_STATES.ROCK)
-        next_wind_turbine, distance_wind_turbine = self.find_nearest_element(MAP_STATES.WIND_TURBINE)
+        _, distance_wind_turbine = self.find_nearest_element(MAP_STATES.WIND_TURBINE)
         bloc_type = int(self.env.state[self.position.to_tuple()])
-        return State(next_rock, next_wind_turbine, distance_wind_turbine, bloc_type)
+        return State(next_rock, distance_wind_turbine, bloc_type)

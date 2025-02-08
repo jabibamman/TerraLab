@@ -6,7 +6,7 @@ from terra_lab.rl.reward import Reward
 from terra_lab.utils.enums import MAP_STATES, MACHINE_TYPE
 
 START_LEAVES = 500
-LEAVES_PER_GREEN_SQUARE = 2
+LEAVES_PER_GREEN_SQUARE = 3
 
 
 class Agent(AbstractAgent):
@@ -87,18 +87,18 @@ class Agent(AbstractAgent):
         if not self.can_pay_leaves(MACHINE_TYPE.PURIFIER.value.price):
             return Reward.NOT_ENOUGHT_MONEY.value
 
-        if not self.env.check_if_energy(self.position.x, self.position.y) or self.env.state[self.position.to_tuple()] == MAP_STATES.WIND_TURBINE.value.value:
+        if not self.env.check_if_energy(self.position.x, self.position.y) or self.env.state[self.position.to_tuple()] == MAP_STATES.WIND_TURBINE.value.value or self.env.state[self.position.to_tuple()] == MAP_STATES.IRRIGATOR.value.value:
             return Reward.WRONG_INPUT.value
 
         self.pay_leaves(MACHINE_TYPE.PURIFIER.value.price)
         self.env.state[self.position.to_tuple()] = MAP_STATES.PURIFIER.value.value
-        self.env.apply_effect(
+        added_dirt = self.env.apply_effect(
             self.position.x, self.position.y,
             MACHINE_TYPE.PURIFIER.value.range,
             lambda cell: cell == MAP_STATES.UNFERTILE_DIRT.value.value,
             MAP_STATES.FERTILE_DIRT.value.value
         )
-        return Reward.PLACE_PURIFIER.value
+        return (added_dirt * LEAVES_PER_GREEN_SQUARE) - MACHINE_TYPE.IRRIGATOR.value.price - MACHINE_TYPE.PURIFIER.value.price
 
     def place_irrigator(self) -> int:
         if not self.can_pay_leaves(MACHINE_TYPE.IRRIGATOR.value.price):
@@ -108,15 +108,12 @@ class Agent(AbstractAgent):
             return Reward.WRONG_INPUT.value
 
         self.pay_leaves(MACHINE_TYPE.IRRIGATOR.value.price)
-        last_grass_count = self.env.count_grass()
         self.env.state[self.position.to_tuple()] = MAP_STATES.IRRIGATOR.value.value
-        self.env.apply_effect(
+        added_grass = self.env.apply_effect(
             self.position.x, self.position.y,
             MACHINE_TYPE.IRRIGATOR.value.range,
             lambda cell: cell == MAP_STATES.FERTILE_DIRT.value.value,
             MAP_STATES.GRASS.value.value
         )
-        current_grass_count = self.env.count_grass()
-        added_grass = current_grass_count - last_grass_count
         self.gain_leaves(added_grass)
-        return added_grass
+        return added_grass * LEAVES_PER_GREEN_SQUARE - MACHINE_TYPE.IRRIGATOR.value.price

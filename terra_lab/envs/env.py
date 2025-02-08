@@ -28,7 +28,7 @@ class Env:
         self.agent.reset()
 
     def randomize_initial_rock_positions(self, count_rocks = 4):
-        return [(5, 5), (5, 15), (5, 25), (5, 35), (15, 5), (15, 15), (15, 25), (15, 35), (25, 5), (25, 15), (25, 25), (25, 35)]
+        return [(5, 5), (5, 15), (5, 25), (5, 35), (15, 5), (15, 15), (15, 25), (15, 35), (25, 5), (25, 15), (25, 25), (25, 35), (35, 5), (35, 15), (35, 25), (35, 35)]
 
     def initialize_map(self):
         """Initializes the map with some predefined state."""
@@ -37,14 +37,17 @@ class Env:
         for x, y in initial_positions:
             self.state[x, y] = 1
 
-    def apply_effect(self, row, col, effect_range, condition, new_state):
+    def apply_effect(self, row, col, effect_range, condition, new_state) -> int:
         """ Applique un effet sur les cellules dans une plage définie """
+        count_tile_changed = 0
         for dx in range(1 - effect_range, effect_range):
             for dy in range(1 - effect_range, effect_range):
                 nx, ny = row - dx, col - dy
                 if 0 <= nx < self.grid_size and 0 <= ny < self.grid_size:
                     if condition(self.state[nx, ny]):
                         self.state[nx, ny] = new_state
+                        count_tile_changed += 1
+        return count_tile_changed
 
     def check_if_energy(self, row: int, col: int) -> bool:
         """ Vérifie si une éolienne est à portée """

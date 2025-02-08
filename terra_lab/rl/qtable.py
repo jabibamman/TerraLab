@@ -34,9 +34,9 @@ class QTable:
 
 
     def decrease_epsilon(self):
-        self.epsilon *= 0.99
-        if self.epsilon < 0.1:
-            self.epsilon = 0.1
+        self.epsilon *= 0.995
+        if self.epsilon < 0.01:
+            self.epsilon = 0.01
 
 
     def save_qtable(self, filename="qtable.json"):

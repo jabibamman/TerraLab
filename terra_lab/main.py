@@ -11,6 +11,8 @@ from terra_lab.mode import Mode
 from terra_lab.rl.ai_agent import AIAgent
 
 
+EPISODES = 5000
+CURRENT_MODE = Mode.AI_CONSOLE
 
 ACTION_MAPPING = {
     pygame.K_p: Action.PLACE_WIND_TURBINE,
@@ -22,7 +24,6 @@ ACTION_MAPPING = {
     pygame.K_LEFT: Action.LEFT,
 }
 
-EPISODES = 5000
 
 def handle_action(event_key, map_instance):
     """
@@ -63,25 +64,26 @@ def ai_gui_mode(env: Env):
 
     pygame.key.set_repeat(200, 50)
 
+    map_instance.render()
     for i in range(EPISODES):
-        map_instance.render()
         map_instance.grass_animation_count += 1
         map_instance.grass_animation_count %= 210
 
         done = False
         while not done:
             action, reward, done = agent.do()
-            print(f'Action: {action}\tReward: {reward}\tScore: {agent.score}\tPosition: {agent.position}')
-            # print(agent.qtable)
             map_instance.render()
-            time.sleep(0.3)
+            # print(f'Action: {action}\tReward: {reward}\tScore: {agent.score}\tPosition: {agent.position}')
+            # print(agent.qtable)
+            # time.sleep(0.3)
         if agent.has_win():
             win_or_lose = "Win"
         else:
             win_or_lose = "Lose"
         print(f'Episode {agent.qtable.episode}: {win_or_lose}!\tScore: {agent.score}\tEpsilon: {agent.qtable.epsilon}')
-        agent.qtable.save_qtable()
         agent.qtable.decrease_epsilon()
+        agent.qtable.episode += 1
+        agent.qtable.save_qtable()
         env.reset()
     map_instance.close()
 
@@ -105,18 +107,24 @@ def human_mode(env: Env):
                 done = True
             elif event.type == pygame.KEYDOWN:
                 handle_action(event.key, map_instance)
+                if agent.has_win():
+                    print("You win!")
+                    done = True
+                elif agent.has_lose():
+                    print("You lose!")
+                    done = True
     map_instance.close()
 
 def plot_mode(env):
     env.score_plotter.plot_scores()
 
-CURRENT_MODE = Mode.AI_CONSOLE
 MODE_MAPPING = {
     Mode.AI_CONSOLE: ai_console_mode,
     Mode.AI_GUI: ai_gui_mode,
     Mode.HUMAN: human_mode,
     Mode.PLOT: plot_mode,
 }
+
 
 def choose_mode(mode):
     global CURRENT_MODE
