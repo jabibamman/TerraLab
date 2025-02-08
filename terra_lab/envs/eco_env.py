@@ -20,6 +20,7 @@ class EcoEnv(gym.Env):
 
         self.cell_size = 20
         self.grass_animation_count = 0
+        pygame.init()
 
         self.sprites = {
             MAP_STATES.ROCK.value.value: pygame.image.load("assets/sprites/Rock.png"),
@@ -57,7 +58,6 @@ class EcoEnv(gym.Env):
         )
         self.action_space = spaces.Discrete(3)
 
-        pygame.init()
         self.screen = pygame.display.set_mode(
             (self.cell_size * self.env.grid_size, self.cell_size * self.env.grid_size - 150)
         )
@@ -77,7 +77,7 @@ class EcoEnv(gym.Env):
 
     def render(self):
         """Affiche l'état actuel de l'environnement."""
-
+        print('RENDERING')
         self.screen.fill((0, 0, 0))
         font = pygame.font.Font(None, 36)
 

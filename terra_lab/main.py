@@ -1,6 +1,8 @@
+import sys
 import time
 
 import pygame
+
 from terra_lab.envs import EcoEnv
 from terra_lab.envs.action import Action
 from terra_lab.envs.agent import Agent
@@ -11,13 +13,13 @@ from terra_lab.rl.ai_agent import AIAgent
 
 
 ACTION_MAPPING = {
-    pygame.K_p: Action.PLACE_WIND_TURBINE.value,
-    pygame.K_u: Action.PLACE_IRRIGATOR.value,
-    pygame.K_r: Action.PLACE_PURIFIER.value,
-    pygame.K_DOWN: Action.DOWN.value,
-    pygame.K_UP: Action.UP.value,
-    pygame.K_RIGHT: Action.RIGHT.value,
-    pygame.K_LEFT: Action.LEFT.value,
+    pygame.K_p: Action.PLACE_WIND_TURBINE,
+    pygame.K_u: Action.PLACE_IRRIGATOR,
+    pygame.K_r: Action.PLACE_PURIFIER,
+    pygame.K_DOWN: Action.DOWN,
+    pygame.K_UP: Action.UP,
+    pygame.K_RIGHT: Action.RIGHT,
+    pygame.K_LEFT: Action.LEFT,
 }
 
 EPISODES = 5000
@@ -28,7 +30,7 @@ def handle_action(event_key, map_instance):
     Returns the updated action type or None if no action is performed.
     """
     action = ACTION_MAPPING.get(event_key)
-    if action:
+    if action is not None:
         map_instance.step(action)
 
 
@@ -112,9 +114,22 @@ MODE_MAPPING = {
     Mode.HUMAN: human_mode,
 }
 
+def choose_mode(mode):
+    global CURRENT_MODE
+    options_to_mode = {
+        '--aic': Mode.AI_CONSOLE,
+        '--aig': Mode.AI_GUI,
+        '--hc': Mode.HUMAN,
+    }
+    CURRENT_MODE = options_to_mode[mode]
+
+
 def main():
     """Main function to run the EcoEnv game."""
     env = Env()
+
+    if len(sys.argv) > 1:
+        choose_mode(sys.argv[1])
 
     print("MODE:", CURRENT_MODE)
     mode_function = MODE_MAPPING[CURRENT_MODE]
