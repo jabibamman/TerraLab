@@ -72,8 +72,9 @@ def ai_gui_mode(env: Env):
         while not done:
             action, reward, done = agent.do()
             print(f'Action: {action}\tReward: {reward}\tScore: {agent.score}\tPosition: {agent.position}')
-            print(agent.qtable)
-            # time.sleep(1)
+            # print(agent.qtable)
+            time.sleep(0.3)
+            map_instance.render()
         if agent.has_win():
             win_or_lose = "Win"
         else:
