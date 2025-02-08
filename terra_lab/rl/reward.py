@@ -6,4 +6,6 @@ class Reward(Enum):
     LOSE = -1000
     WRONG_INPUT = -100
     NOT_ENOUGHT_MONEY = -100
-    MOVE = -1
+    MOVE = 0
+    PLACE_WIND_TURBINE = 0
+    PLACE_PURIFIER = 0

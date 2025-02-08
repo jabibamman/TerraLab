@@ -10,7 +10,7 @@ from terra_lab.utils.enums import MAP_STATES
 class AIAgent(Agent):
     def __init__(self, env):
         super().__init__(env)
-        self.qtable = QTable(0.8, 0.9)
+        self.qtable = QTable(0.8, 0.9, 1.0)
         self.state = self.get_current_state()
         self.score = 0
         self.history = []
@@ -22,19 +22,22 @@ class AIAgent(Agent):
         self.score = 0
 
 
-    def do(self) -> tuple[Action, int]:
+    def do(self) -> tuple[Action, int, bool]:
         action = self.qtable.best_action(self.state)
 
-        reward = self.env.step(action)
+        reward, done = self.env.step(action)
         new_state = self.get_current_state()
 
         self.qtable.set(self.state, action, reward, new_state)
         self.score += reward
         self.state = new_state
-        return action, reward
+        return action, reward, done
 
 
     def find_nearest_element(self, element: MAP_STATES) -> tuple[Radar, int]:
+        if self.env.state[self.position.to_tuple()] == element.value.value:
+            return Radar(True, True, True, True), 0
+
         queue = deque([(self.position, 0)])
         visited = { self.position }
 
@@ -42,7 +45,7 @@ class AIAgent(Agent):
             pos, dist = queue.popleft()
 
             if self.env.state[pos.to_tuple()] == element.value.value:
-                next_rock = Radar(self.position.y > pos.y, self.position.y < pos.y, self.position.x < pos.x, self.position.x > pos.x)
+                next_rock = Radar(self.position.y >= pos.y, self.position.y <= pos.y, self.position.x <= pos.x, self.position.x >= pos.x)
                 return next_rock, dist
 
             for direction in MOVES.values():
@@ -57,7 +60,7 @@ class AIAgent(Agent):
 
 
     def get_current_state(self) -> State:
-        next_rock, distance_next_rock = self.find_nearest_element(MAP_STATES.ROCK)
-        next_wind_turbine, distance_next_wind_turbine = self.find_nearest_element(MAP_STATES.WIND_TURBINE)
+        next_rock, _ = self.find_nearest_element(MAP_STATES.ROCK)
+        next_wind_turbine, distance_wind_turbine = self.find_nearest_element(MAP_STATES.WIND_TURBINE)
         bloc_type = int(self.env.state[self.position.to_tuple()])
-        return State(next_rock, next_wind_turbine, distance_next_wind_turbine, bloc_type)
+        return State(next_rock, next_wind_turbine, distance_wind_turbine, bloc_type)

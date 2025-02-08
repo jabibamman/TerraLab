@@ -2,10 +2,7 @@ import numpy as np
 
 from terra_lab.envs.abstract_agent import AbstractAgent
 from terra_lab.envs.action import Action
-from terra_lab.envs.action import MOVES, Action
-from terra_lab.envs.position import Position
 from terra_lab.rl.reward import Reward
-from terra_lab.rl.state import State
 from terra_lab.utils.enums import MACHINE_TYPE, MAP_STATES
 
 
@@ -65,7 +62,7 @@ class Env:
                 count += 1
         return count
 
-    def step(self, action: Action) -> int:
+    def step(self, action: Action) -> tuple[int, bool]:
         """Applique l'action courante à la cellule spécifiée."""
         self.current_action = action
 
@@ -81,17 +78,16 @@ class Env:
 
         agent_action = action_mapping[action]
         reward = agent_action()
+        game_done = False
 
         if self.agent.has_win():
-            reward += Reward.WIN
-            self.reset()
-            pass
+            reward += Reward.WIN.value
+            game_done = True
         elif self.agent.has_lose():
-            reward += Reward.LOSE
-            self.reset()
-            pass
+            reward += Reward.LOSE.value
+            game_done = True
 
-        return reward
+        return reward, game_done
 
     def can_place_turbine(self) -> bool:
         """ Vérifie si une éolienne peut encore être placée """

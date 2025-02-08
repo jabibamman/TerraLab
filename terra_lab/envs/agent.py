@@ -77,7 +77,7 @@ class Agent(AbstractAgent):
 
         self.pay_leaves(MACHINE_TYPE.WIND_TURBINE.value.price)
         self.env.state[self.position.to_tuple()] = MAP_STATES.WIND_TURBINE.value.value
-        return 0
+        return Reward.PLACE_WIND_TURBINE.value
 
     def place_purifier(self) -> int:
         if not self.can_pay_leaves(MACHINE_TYPE.PURIFIER.value.price):
@@ -94,7 +94,7 @@ class Agent(AbstractAgent):
             lambda cell: cell == MAP_STATES.UNFERTILE_DIRT.value.value,
             MAP_STATES.FERTILE_DIRT.value.value
         )
-        return 0
+        return Reward.PLACE_PURIFIER.value
 
     def place_irrigator(self) -> int:
         if not self.can_pay_leaves(MACHINE_TYPE.IRRIGATOR.value.price):
