@@ -7,6 +7,7 @@ from terra_lab.utils.enums import MAP_STATES
 import matplotlib.pyplot as plt
 from torch.utils.tensorboard import SummaryWriter 
 import datetime 
+import pygame
 
 class QLearningAgent:
     def __init__(self, env, learning_rate=0.1, discount_factor=0.9, exploration_rate=1.0, exploration_decay=0.995):
@@ -22,6 +23,8 @@ class QLearningAgent:
         self.reward = 0
         self.load_q_table()
         self.writer = SummaryWriter(log_dir="runs/grid_40_40" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+        self.q_table = self.load_q_table()
+        self.actions = ["place_wind_turbine", "place_purifier", "place_irrigator", "move_up", "move_down", "move_left", "move_right"]
 
     def choose_action(self, state):
         """Choisit une action en utilisant ε-greedy."""
@@ -64,7 +67,7 @@ class QLearningAgent:
         td_error = td_target - self.q_table[x, y, action]
         self.q_table[x, y, action] += self.learning_rate * td_error
 
-    def train(self, episodes=1000, q_table_file="q_table.npz"):
+    def train(self, episodes=1000, q_table_file="q_table.npz", render_during_training=True):
         """Entraîne l'agent sur un certain nombre d'épisodes."""
         if self.q_table.any():
             print("Q-table déjà chargée, entraînement en cours.")
@@ -77,7 +80,7 @@ class QLearningAgent:
             self.reward = 0
             total_reward = 0
             state = (self.agent.pos_x, self.agent.pos_y)
-            done = False            
+            done = False
 
             while not done:
                 action_idx = self.choose_action(state)
@@ -103,15 +106,20 @@ class QLearningAgent:
                     print("Erreur : action inconnue")
 
                 next_state = (self.agent.pos_x, self.agent.pos_y)
-
                 immediate_reward = self.compute_reward(next_state)
                 self.reward += immediate_reward
                 self.update_q_table(state, action_idx, immediate_reward, next_state)
 
                 state = next_state
-
-                #self.map_instance.render()
                 done = self.check_done()
+
+                # Ici, on rajoute l'appel au rendu pour afficher l'état de l'environnement
+                if render_during_training:
+                    self.map_instance.render()
+                    # On peut ajouter un délai pour que tu puisses voir l'évolution
+                    pygame.time.delay(50)
+                    # On traite les events pour éviter que la fenêtre ne se fige
+                    pygame.event.pump()
 
             with open("results/output.txt", "a") as file:
                 print(f"Episode {episode}, Exploration Rate: {self.exploration_rate:.2f}, Win :{self.agent.has_win()}, Lose :{self.agent.has_lose()} , Reward: {self.reward}", file=file)
@@ -125,8 +133,6 @@ class QLearningAgent:
             self.writer.add_scalar("TotalReward", self.reward, episode)
             self.writer.flush() 
 
-        self.writer.close()
-        
     def check_done(self):
         """Condition pour signaler la fin d'un épisode (personnalisable)."""
         if self.agent.has_win() : 
